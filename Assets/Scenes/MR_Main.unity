@@ -861,6 +861,8 @@ MonoBehaviour:
     prefab: {fileID: 7926525261625170692, guid: 2f575d44045c5b6468311ebc3f0bab80, type: 3}
   - prefabId: Capsule
     prefab: {fileID: 2704372431103078432, guid: e0d3e4cb57087024cb1db87fc11ae2f0, type: 3}
+  - prefabId: Capsule
+    prefab: {fileID: 2704372431103078432, guid: e0d3e4cb57087024cb1db87fc11ae2f0, type: 3}
 --- !u!4 &504708432
 Transform:
   m_ObjectHideFlags: 0
