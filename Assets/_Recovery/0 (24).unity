@@ -3433,8 +3433,8 @@ MonoBehaviour:
   gripThreshold: 0.8
   releaseThreshold: 0.2
   onlyOneHeldObject: 1
-  seedResourceName: Seed
-  sproutPrefab: {fileID: 2658771315599657286, guid: 3dacf0b14b73e934fae21a1ada6a75f6, type: 3}
+  seedResourceName: seed
+  sproutPrefab: {fileID: 919132149155446097, guid: 70d93246e021dd94c952e43f98d0e394, type: 3}
   sproutPrefabId: Sprout
 --- !u!1 &1934486443
 GameObject:
