@@ -1,0 +1,5 @@
+Bu Model Blender 2.69 Ýle Modellenmiþ Olup Emre Ocak'a Aittir Farklý Kiþiler Tarafýndan Benim Modelim Dierekten Paylaþýlmasý Yasaktýr !!!
+
+Rar Dosyasýný Ýçinde 3ds,Obj,Blender Dosyasý Ve Bir Adet Texture Bulunmaktadýr 
+
+Bana Bu Adresten Ulaþabilirsiniz ==== https://www.facebook.com/emre.ocak.3705

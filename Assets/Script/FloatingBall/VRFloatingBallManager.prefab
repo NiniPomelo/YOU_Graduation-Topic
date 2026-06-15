@@ -1,0 +1,66 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &8828531091754407413
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3262626948338158237}
+  - component: {fileID: 3599589590372878495}
+  m_Layer: 0
+  m_Name: VRFloatingBallManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &3262626948338158237
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8828531091754407413}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &3599589590372878495
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8828531091754407413}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: eee7fde8d57636643ae5c1185aa14d08, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::VRFloatingBall_Final
+  playerHead: {fileID: 0}
+  rightHand: {fileID: 0}
+  leftHand: {fileID: 0}
+  headOffset: {x: 0, y: 1.6, z: 0.6}
+  handOffset: {x: 0, y: 0, z: 0.07}
+  hoverHeight: 0.05
+  smoothTime: 0.12
+  floatingBallPrefab: {fileID: 2045668924909315631, guid: af3ef540b6fcd3c4b991a6bbb437319c, type: 3}
+  ballColors:
+  - {r: 1, g: 1, b: 1, a: 1}
+  - {r: 0, g: 0, b: 1, a: 1}
+  - {r: 0, g: 1, b: 0, a: 1}
+  - {r: 0.5, g: 0.5, b: 0.5, a: 1}
+  swingThreshold: 0.5
+  swingCooldown: 0.3
+  absorbBallPrefab: {fileID: 5162721424767320565, guid: 17dc49a89a88f3249bca2b9aaed1bbea, type: 3}
+  absorbOffset: {x: 0, y: 0.1, z: 0}
+  mergeParticlesPrefab: {fileID: 0}
+  absorbParticlePrefab: {fileID: 0}
+  absorbDistanceThreshold: 0.2
