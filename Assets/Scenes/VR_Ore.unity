@@ -1613,7 +1613,7 @@ Transform:
   m_GameObject: {fileID: 271947516}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -211.5, y: 21.2, z: -142.7}
+  m_LocalPosition: {x: -207.74, y: 20.53, z: -140.635}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1632,6 +1632,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CarTrigger
   car: {fileID: 812071028}
+  playerRoot: {fileID: 0}
+  playerTag: MainCamera
 --- !u!65 &271947519
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -3055,15 +3057,15 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: -8679921383154817045, guid: 47d6aa6b1d040b9448a9dbdf19884523, type: 3}
       propertyPath: m_LocalScale.x
-      value: 1.2
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 47d6aa6b1d040b9448a9dbdf19884523, type: 3}
       propertyPath: m_LocalScale.y
-      value: 1.2
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 47d6aa6b1d040b9448a9dbdf19884523, type: 3}
       propertyPath: m_LocalScale.z
-      value: 1.2
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 47d6aa6b1d040b9448a9dbdf19884523, type: 3}
       propertyPath: m_LocalPosition.x
@@ -3071,7 +3073,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 47d6aa6b1d040b9448a9dbdf19884523, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 20.5
+      value: 20.36
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 47d6aa6b1d040b9448a9dbdf19884523, type: 3}
       propertyPath: m_LocalPosition.z
@@ -4426,7 +4428,7 @@ Transform:
   m_GameObject: {fileID: 785368172}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -207.48, y: 20.475, z: -140.653}
+  m_LocalPosition: {x: -207.33, y: 20.897, z: -142.55}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -4791,6 +4793,30 @@ MonoBehaviour:
   getInButton: {fileID: 91102774}
   getOffButton: {fileID: 891572261}
   playerCamera: {fileID: 1967107574}
+  playerRoot: {fileID: 0}
+  enableControllerFallback: 1
+  controllerButton: 8192
+  controller: 2
+  driverViewPositionOffset: {x: 0, y: 0, z: 0}
+  driverViewRotationOffset: {x: 0, y: 90, z: 0}
+  enableCarDriving: 1
+  driveSpeed: 6
+  reverseSpeed: 3
+  turnSpeed: 60
+  inputDeadZone: 0.15
+  throttleController: 1
+  throttleAxis: 1
+  steeringController: 2
+  steeringAxis: 1
+  groundLayerMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  groundRaycastHeight: 3
+  groundRaycastDistance: 8
+  groundOffset: 0.2
+  groundAlignSpeed: 12
+  autoDisablePlayerScripts: 1
+  disableWhileInCar: []
 --- !u!4 &812071029
 Transform:
   m_ObjectHideFlags: 0
@@ -9660,8 +9686,8 @@ RectTransform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1499623012}
   m_LocalRotation: {x: 0, y: 0.7071068, z: 0, w: 0.7071068}
-  m_LocalPosition: {x: 0, y: 0, z: -138.87}
-  m_LocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  m_LocalPosition: {x: 0, y: 0, z: -140.745}
+  m_LocalScale: {x: 0.0035, y: 0.0035, z: 0.0035}
   m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 91102775}
@@ -9670,7 +9696,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 90, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: -206.26, y: 20.98}
+  m_AnchoredPosition: {x: -206.77, y: 20.54}
   m_SizeDelta: {x: 300, y: 120}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1499623014
@@ -9723,7 +9749,7 @@ Canvas:
   m_Enabled: 1
   serializedVersion: 3
   m_RenderMode: 2
-  m_Camera: {fileID: 0}
+  m_Camera: {fileID: 1967107574}
   m_PlaneDistance: 100
   m_PixelPerfect: 0
   m_ReceivesEvents: 1
@@ -10877,7 +10903,7 @@ Transform:
   m_GameObject: {fileID: 1687461535}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -207.41, y: 21.165, z: -141.605}
+  m_LocalPosition: {x: -207.72, y: 21.11, z: -141.744}
   m_LocalScale: {x: 0, y: 0, z: 0}
   m_ConstrainProportionsScale: 1
   m_Children: []
