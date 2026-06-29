@@ -249,6 +249,11 @@ public class SaveManager : MonoBehaviour
                 prefab = Resources.Load<GameObject>("MR/" + objectData.prefabId);
             }
 
+            if (prefab == null && objectData.prefabId == "Sprout")
+            {
+                prefab = Resources.Load<GameObject>("MR/sprout 1");
+            }
+
             if (prefab == null)
             {
                 Debug.LogWarning("�䤣�� Prefab�G" + objectData.prefabId);

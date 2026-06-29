@@ -6809,6 +6809,14 @@ PrefabInstance:
       propertyPath: m_SizeDelta.x
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 2714682537467396628, guid: 3b281b32d1fad4b40a1ca5f78bfa5e5f, type: 3}
+      propertyPath: isTool
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2792812632876488515, guid: 3b281b32d1fad4b40a1ca5f78bfa5e5f, type: 3}
+      propertyPath: isTool
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 3681014045791436692, guid: 3b281b32d1fad4b40a1ca5f78bfa5e5f, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
@@ -6825,9 +6833,25 @@ PrefabInstance:
       propertyPath: m_SizeDelta.x
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5496937440623339745, guid: 3b281b32d1fad4b40a1ca5f78bfa5e5f, type: 3}
+      propertyPath: isTool
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5665026449039166462, guid: 3b281b32d1fad4b40a1ca5f78bfa5e5f, type: 3}
+      propertyPath: isTool
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 5901695606702275449, guid: 3b281b32d1fad4b40a1ca5f78bfa5e5f, type: 3}
       propertyPath: m_Name
       value: Canvas
+      objectReference: {fileID: 0}
+    - target: {fileID: 6366526254899392377, guid: 3b281b32d1fad4b40a1ca5f78bfa5e5f, type: 3}
+      propertyPath: isTool
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6411513739165766458, guid: 3b281b32d1fad4b40a1ca5f78bfa5e5f, type: 3}
+      propertyPath: isTool
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6516009861582298132, guid: 3b281b32d1fad4b40a1ca5f78bfa5e5f, type: 3}
       propertyPath: m_AnchorMax.y
@@ -6836,6 +6860,14 @@ PrefabInstance:
     - target: {fileID: 6516009861582298132, guid: 3b281b32d1fad4b40a1ca5f78bfa5e5f, type: 3}
       propertyPath: m_AnchorMin.y
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6835016369882115551, guid: 3b281b32d1fad4b40a1ca5f78bfa5e5f, type: 3}
+      propertyPath: isTool
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6988077829031424186, guid: 3b281b32d1fad4b40a1ca5f78bfa5e5f, type: 3}
+      propertyPath: isTool
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7393718241428735155, guid: 3b281b32d1fad4b40a1ca5f78bfa5e5f, type: 3}
       propertyPath: m_AnchorMax.y
@@ -9563,6 +9595,11 @@ MonoBehaviour:
   gripThreshold: 0.8
   releaseThreshold: 0.2
   onlyOneHeldObject: 1
+  mrSceneName: MR_Main
+  mrWorldSectionIndex: 0
+  seedResourceName: Seed
+  sproutPrefab: {fileID: 0}
+  sproutPrefabId: Sprout
 --- !u!1 &1683807277
 GameObject:
   m_ObjectHideFlags: 0

@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class InventorySpawner : MonoBehaviour
 {
@@ -21,6 +22,10 @@ public class InventorySpawner : MonoBehaviour
 
     [Header("Avoid Duplicate Spawn")]
     public bool onlyOneHeldObject = true;
+
+    [Header("MR World Generation Restriction")]
+    public string mrSceneName = "MR_Main";
+    public int mrWorldSectionIndex = 0;
 
     [Header("MR Planting")]
     public string seedResourceName = "Seed";
@@ -72,6 +77,9 @@ public class InventorySpawner : MonoBehaviour
             return;
         }
 
+        if (IsMrWorldGenerationBlocked(currentSlot))
+            return;
+
         if (currentSlot.spawnPrefab == null)
         {
             Debug.LogWarning("Selected slot has no spawnPrefab: " + currentSlot.resourceName);
@@ -117,6 +125,18 @@ public class InventorySpawner : MonoBehaviour
         }
 
         Debug.Log("Spawned held object: " + currentSpawnedObject.name + " | isTool = " + currentSpawnedIsTool);
+    }
+
+    bool IsMrWorldGenerationBlocked(InventorySlotUI slot)
+    {
+        string currentSceneName = SceneManager.GetActiveScene().name;
+        bool isMrWorldSection = panelController.GetCurrentSectionIndex() == mrWorldSectionIndex;
+        bool isBlocked = currentSceneName != mrSceneName && isMrWorldSection && !slot.isTool;
+
+        if (isBlocked)
+            Debug.Log("MR world generation is disabled in scene: " + currentSceneName);
+
+        return isBlocked;
     }
 
     bool IsSeedSlot(InventorySlotUI slot)

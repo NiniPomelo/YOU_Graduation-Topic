@@ -863,6 +863,8 @@ MonoBehaviour:
     prefab: {fileID: 2704372431103078432, guid: e0d3e4cb57087024cb1db87fc11ae2f0, type: 3}
   - prefabId: Capsule
     prefab: {fileID: 2704372431103078432, guid: e0d3e4cb57087024cb1db87fc11ae2f0, type: 3}
+  - prefabId: Sprout
+    prefab: {fileID: 2658771315599657286, guid: 3dacf0b14b73e934fae21a1ada6a75f6, type: 3}
 --- !u!4 &504708432
 Transform:
   m_ObjectHideFlags: 0
