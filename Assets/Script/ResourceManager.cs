@@ -1,11 +1,12 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 public class ResourceManager : MonoBehaviour
 {
     public static ResourceManager Instance;
 
-    private Dictionary<string, int> resources = new Dictionary<string, int>();
+    private readonly Dictionary<string, int> resources = new Dictionary<string, int>();
+    private bool suppressAutoSave;
 
     private void Awake()
     {
@@ -32,9 +33,7 @@ public class ResourceManager : MonoBehaviour
         resources[resourceName] += amount;
 
         Debug.Log("AddResource -> " + resourceName + " = " + resources[resourceName]);
-
-        if (SaveManager.Instance != null)
-            SaveManager.Instance.SaveGame();
+        AutoSaveIfAllowed();
     }
 
     public bool ConsumeResource(string resourceName, int amount)
@@ -50,9 +49,7 @@ public class ResourceManager : MonoBehaviour
 
         resources[resourceName] = currentAmount - amount;
         Debug.Log("ConsumeResource -> " + resourceName + " = " + resources[resourceName]);
-
-        if (SaveManager.Instance != null)
-            SaveManager.Instance.SaveGame();
+        AutoSaveIfAllowed();
 
         return true;
     }
@@ -60,13 +57,7 @@ public class ResourceManager : MonoBehaviour
     public int GetResource(string resourceName)
     {
         if (string.IsNullOrEmpty(resourceName)) return 0;
-
-        int value = 0;
-        if (resources.ContainsKey(resourceName))
-            value = resources[resourceName];
-
-        Debug.Log("GetResource -> " + resourceName + " = " + value);
-        return value;
+        return resources.TryGetValue(resourceName, out int value) ? value : 0;
     }
 
     public void ResetAllResources()
@@ -75,8 +66,38 @@ public class ResourceManager : MonoBehaviour
         Debug.Log("All resources reset");
     }
 
+    public void ReplaceAllResources(Dictionary<string, int> newResources, bool saveAfterReplace = false)
+    {
+        resources.Clear();
+
+        if (newResources != null)
+        {
+            foreach (var pair in newResources)
+            {
+                if (string.IsNullOrEmpty(pair.Key)) continue;
+                resources[pair.Key] = Mathf.Max(0, pair.Value);
+            }
+        }
+
+        if (saveAfterReplace)
+            AutoSaveIfAllowed();
+    }
+
     public Dictionary<string, int> GetAllResources()
     {
         return new Dictionary<string, int>(resources);
+    }
+
+    public void SetAutoSaveSuppressed(bool suppressed)
+    {
+        suppressAutoSave = suppressed;
+    }
+
+    private void AutoSaveIfAllowed()
+    {
+        if (suppressAutoSave) return;
+
+        if (SaveManager.Instance != null)
+            SaveManager.Instance.SaveGame();
     }
 }

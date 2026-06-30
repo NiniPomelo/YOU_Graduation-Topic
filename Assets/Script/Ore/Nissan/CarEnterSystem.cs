@@ -28,6 +28,8 @@ public class CarEnterSystem : MonoBehaviour
     public OVRInput.Axis2D throttleAxis = OVRInput.Axis2D.PrimaryThumbstick;
     public OVRInput.Controller steeringController = OVRInput.Controller.RTouch;
     public OVRInput.Axis2D steeringAxis = OVRInput.Axis2D.PrimaryThumbstick;
+    public Transform turnPivot;
+    public Transform forwardReference;
 
     [Header("Ground Follow")]
     public LayerMask groundLayerMask = ~0;
@@ -35,6 +37,7 @@ public class CarEnterSystem : MonoBehaviour
     public float groundRaycastDistance = 8f;
     public float groundOffset = 0.2f;
     public float groundAlignSpeed = 12f;
+    public Transform groundProbe;
 
     [Header("Disable While Driving")]
     public bool autoDisablePlayerScripts = true;
@@ -43,7 +46,6 @@ public class CarEnterSystem : MonoBehaviour
     private Vector3 originalRootPosition;
     private Quaternion originalRootRotation;
     private bool[] disableWhileInCarOriginalStates;
-    private float currentCarYaw;
     private Vector3 currentGroundNormal = Vector3.up;
 
     bool inCar = false;
@@ -94,7 +96,6 @@ public class CarEnterSystem : MonoBehaviour
         Transform root = GetPlayerRoot();
         originalRootPosition = root.position;
         originalRootRotation = root.rotation;
-        currentCarYaw = transform.eulerAngles.y;
 
         SnapCarToGround(true);
         MovePlayerTo(driverSeat);
@@ -127,11 +128,11 @@ public class CarEnterSystem : MonoBehaviour
         if (Mathf.Abs(forwardInput) > 0.01f)
         {
             float turnDirection = forwardInput >= 0f ? 1f : -1f;
-            currentCarYaw += turnInput * turnSpeed * turnDirection * Time.deltaTime;
+            float turnAmount = turnInput * turnSpeed * turnDirection * Time.deltaTime;
+            RotateCarAroundPivot(Quaternion.AngleAxis(turnAmount, currentGroundNormal), true);
         }
 
-        Quaternion yawRotation = Quaternion.Euler(0f, currentCarYaw, 0f);
-        Vector3 driveDirection = Vector3.ProjectOnPlane(yawRotation * Vector3.forward, currentGroundNormal).normalized;
+        Vector3 driveDirection = Vector3.ProjectOnPlane(GetForwardReference().forward, currentGroundNormal).normalized;
 
         float speed = forwardInput >= 0f ? driveSpeed : reverseSpeed;
         transform.position += driveDirection * forwardInput * speed * Time.deltaTime;
@@ -236,26 +237,22 @@ public class CarEnterSystem : MonoBehaviour
 
         currentGroundNormal = groundHit.normal;
 
-        Vector3 targetPosition = groundHit.point + currentGroundNormal * groundOffset;
-        transform.position = instant
-            ? targetPosition
-            : Vector3.Lerp(transform.position, targetPosition, groundAlignSpeed * Time.deltaTime);
+        Transform probe = GetGroundProbe();
+        Vector3 targetProbePosition = groundHit.point + currentGroundNormal * groundOffset;
+        Vector3 positionDelta = targetProbePosition - probe.position;
+        transform.position += instant ? positionDelta : positionDelta * Mathf.Clamp01(groundAlignSpeed * Time.deltaTime);
 
-        Quaternion yawRotation = Quaternion.Euler(0f, currentCarYaw, 0f);
-        Vector3 forward = Vector3.ProjectOnPlane(yawRotation * Vector3.forward, currentGroundNormal).normalized;
-
-        if (forward.sqrMagnitude < 0.001f)
-            forward = Vector3.ProjectOnPlane(transform.forward, currentGroundNormal).normalized;
-
-        Quaternion targetRotation = Quaternion.LookRotation(forward, currentGroundNormal);
-        transform.rotation = instant
+        Quaternion targetRotation = Quaternion.FromToRotation(transform.up, currentGroundNormal) * transform.rotation;
+        Quaternion smoothedRotation = instant
             ? targetRotation
             : Quaternion.Slerp(transform.rotation, targetRotation, groundAlignSpeed * Time.deltaTime);
+
+        RotateCarAroundPivot(smoothedRotation * Quaternion.Inverse(transform.rotation), instant);
     }
 
     private bool TryGetGroundHit(out RaycastHit groundHit)
     {
-        Vector3 rayOrigin = transform.position + Vector3.up * groundRaycastHeight;
+        Vector3 rayOrigin = GetGroundProbe().position + Vector3.up * groundRaycastHeight;
         float rayDistance = groundRaycastHeight + groundRaycastDistance;
         RaycastHit[] hits = Physics.RaycastAll(rayOrigin, Vector3.down, rayDistance, groundLayerMask, QueryTriggerInteraction.Ignore);
 
@@ -275,5 +272,51 @@ public class CarEnterSystem : MonoBehaviour
 
         groundHit = default;
         return false;
+    }
+
+    private Transform GetTurnPivot()
+    {
+        if (turnPivot != null)
+            return turnPivot;
+
+        if (driverSeat != null)
+            return driverSeat;
+
+        return transform;
+    }
+
+    private Transform GetForwardReference()
+    {
+        if (forwardReference != null)
+            return forwardReference;
+
+        if (driverSeat != null)
+            return driverSeat;
+
+        return transform;
+    }
+
+    private Transform GetGroundProbe()
+    {
+        if (groundProbe != null)
+            return groundProbe;
+
+        if (turnPivot != null)
+            return turnPivot;
+
+        if (driverSeat != null)
+            return driverSeat;
+
+        return transform;
+    }
+
+    private void RotateCarAroundPivot(Quaternion rotationDelta, bool instant)
+    {
+        Transform pivot = GetTurnPivot();
+        Vector3 pivotPosition = pivot.position;
+        Vector3 rootOffset = transform.position - pivotPosition;
+
+        transform.rotation = rotationDelta * transform.rotation;
+        transform.position = pivotPosition + rotationDelta * rootOffset;
     }
 }

@@ -1,22 +1,22 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 using TMPro;
 using UnityEngine.SceneManagement;
 
 public class MRMainEndingUI : MonoBehaviour
 {
-    [Header("­ì¥»ªº¸ê·½ Panel")]
+    [Header("åŸæœ¬çš„è³‡æº Panel")]
     public GameObject resourcePanel;
 
-    [Header("µ²§½µøµ¡")]
+    [Header("çµå±€è¦–çª—")]
     public GameObject endingPanel;
 
-    [Header("¤å¦r")]
+    [Header("æ–‡å­—")]
     public TMP_Text titleText;
     public TMP_Text descriptionText;
     public TMP_Text summaryText;
 
-    [Header("­«·s¶}©l­n¶iªº³õ´º")]
-    public string restartSceneName = "Forest";
+    [Header("é‡æ–°é–‹å§‹è¦é€²çš„å ´æ™¯")]
+    public string restartSceneName = "VR_Forest";
 
     void Start()
     {
@@ -54,7 +54,7 @@ public class MRMainEndingUI : MonoBehaviour
             descriptionText.text = GameEndingState.Instance.endingDescription;
 
         if (summaryText != null)
-            summaryText.text = "Á`­t­±¦æ¬°­È¡G" + GameEndingState.Instance.totalNegative;
+            summaryText.text = "ç¸½è² é¢è¡Œç‚ºå€¼ï¼š" + GameEndingState.Instance.totalNegative;
 
         GameEndingState.Instance.ClearEndingData();
     }

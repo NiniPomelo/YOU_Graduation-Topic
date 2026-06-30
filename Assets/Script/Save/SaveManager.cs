@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
@@ -37,26 +37,26 @@ public class SaveManager : MonoBehaviour
         string json = JsonUtility.ToJson(data, true);
         File.WriteAllText(SavePath, json);
 
-        Debug.Log("�C���w�s�ɡG" + SavePath);
+        Debug.Log("Game saved: " + SavePath);
     }
 
-    void SaveSpawnedObjectsWithSceneCheck(SaveData data)
+    private void SaveSpawnedObjectsWithSceneCheck(SaveData data)
     {
         string currentScene = SceneManager.GetActiveScene().name;
 
         if (currentScene == "MR_Main")
         {
             SaveSpawnedObjects(data);
-            Debug.Log("�ثe�b MR_Main�A��s MR �ͦ�����s��");
+            Debug.Log("Saved MR_Main spawned objects.");
         }
         else
         {
             PreserveOldSpawnedObjects(data);
-            Debug.Log("�ثe���b MR_Main�A�O�d�ª� MR �ͦ�������");
+            Debug.Log("Preserved MR_Main spawned objects while saving from another scene.");
         }
     }
 
-    void PreserveOldSpawnedObjects(SaveData data)
+    private void PreserveOldSpawnedObjects(SaveData data)
     {
         if (!File.Exists(SavePath)) return;
 
@@ -64,11 +64,10 @@ public class SaveManager : MonoBehaviour
         SaveData oldData = JsonUtility.FromJson<SaveData>(oldJson);
 
         if (oldData != null && oldData.spawnedObjects != null)
-        {
             data.spawnedObjects = oldData.spawnedObjects;
-        }
     }
-    void SaveResources(SaveData data)
+
+    private void SaveResources(SaveData data)
     {
         if (ResourceManager.Instance == null) return;
 
@@ -84,7 +83,7 @@ public class SaveManager : MonoBehaviour
         }
     }
 
-    void SaveKarma(SaveData data)
+    private void SaveKarma(SaveData data)
     {
         if (KarmaSystem.Instance == null) return;
 
@@ -93,7 +92,7 @@ public class SaveManager : MonoBehaviour
         data.mineNegative = KarmaSystem.Instance.mineNegative;
     }
 
-    void SaveEnding(SaveData data)
+    private void SaveEnding(SaveData data)
     {
         if (GameEndingState.Instance == null) return;
 
@@ -104,7 +103,7 @@ public class SaveManager : MonoBehaviour
         data.isDisasterEnding = GameEndingState.Instance.isDisasterEnding;
     }
 
-    void SaveSpawnedObjects(SaveData data)
+    private void SaveSpawnedObjects(SaveData data)
     {
         SpawnedObjectRecord[] objects =
             FindObjectsByType<SpawnedObjectRecord>(FindObjectsSortMode.None);
@@ -139,13 +138,13 @@ public class SaveManager : MonoBehaviour
     {
         if (!Application.isPlaying)
         {
-            Debug.LogWarning("Ū�ɥu��b Play Mode ����A�Х��� Play�C");
+            Debug.LogWarning("LoadGame can only run in Play Mode.");
             return;
         }
 
         if (!File.Exists(SavePath))
         {
-            Debug.LogWarning("�S�����s��");
+            Debug.LogWarning("No save file found.");
             return;
         }
 
@@ -165,22 +164,28 @@ public class SaveManager : MonoBehaviour
         LoadEnding(data);
         LoadSpawnedObjects(data);
 
-        Debug.Log("�C��Ū�ɧ���");
+        Debug.Log("Game loaded.");
     }
 
-    void LoadResources(SaveData data)
+    private void LoadResources(SaveData data)
     {
         if (ResourceManager.Instance == null) return;
 
-        ResourceManager.Instance.ResetAllResources();
+        Dictionary<string, int> loadedResources = new Dictionary<string, int>();
 
-        foreach (var item in data.resources)
+        if (data.resources != null)
         {
-            ResourceManager.Instance.AddResource(item.resourceName, item.amount);
+            foreach (var item in data.resources)
+            {
+                if (item == null || string.IsNullOrEmpty(item.resourceName)) continue;
+                loadedResources[item.resourceName] = item.amount;
+            }
         }
+
+        ResourceManager.Instance.ReplaceAllResources(loadedResources);
     }
 
-    void LoadKarma(SaveData data)
+    private void LoadKarma(SaveData data)
     {
         if (KarmaSystem.Instance == null) return;
 
@@ -189,7 +194,7 @@ public class SaveManager : MonoBehaviour
         KarmaSystem.Instance.mineNegative = data.mineNegative;
     }
 
-    void LoadEnding(SaveData data)
+    private void LoadEnding(SaveData data)
     {
         if (GameEndingState.Instance == null) return;
 
@@ -212,7 +217,7 @@ public class SaveManager : MonoBehaviour
     {
         if (!File.Exists(SavePath))
         {
-            Debug.Log("�S���s�ɡA�ҥH�����J MR �ͦ�����");
+            Debug.Log("No save file found, skipping MR spawned object loading.");
             return;
         }
 
@@ -221,22 +226,21 @@ public class SaveManager : MonoBehaviour
 
         LoadSpawnedObjects(data);
 
-        Debug.Log("MR �ͦ�����w�۰ʫ�_");
+        Debug.Log("MR spawned objects loaded.");
     }
+
     public void LoadSpawnedObjects(SaveData data)
     {
+        if (data == null || data.spawnedObjects == null) return;
+
         SpawnedObjectRecord[] oldObjects =
             FindObjectsByType<SpawnedObjectRecord>(FindObjectsSortMode.None);
 
         foreach (var oldObj in oldObjects)
-        {
             Destroy(oldObj.gameObject);
-        }
 
         if (SpawnPrefabDatabase.Instance == null)
-        {
-            Debug.LogWarning("SpawnPrefabDatabase not found, falling back to Resources for spawned objects");
-        }
+            Debug.LogWarning("SpawnPrefabDatabase not found, falling back to Resources for spawned objects.");
 
         foreach (var objectData in data.spawnedObjects)
         {
@@ -245,18 +249,14 @@ public class SaveManager : MonoBehaviour
                 : null;
 
             if (prefab == null)
-            {
                 prefab = Resources.Load<GameObject>("MR/" + objectData.prefabId);
-            }
 
             if (prefab == null && objectData.prefabId == "Sprout")
-            {
                 prefab = Resources.Load<GameObject>("MR/sprout 1");
-            }
 
             if (prefab == null)
             {
-                Debug.LogWarning("�䤣�� Prefab�G" + objectData.prefabId);
+                Debug.LogWarning("Missing prefab for saved object: " + objectData.prefabId);
                 continue;
             }
 
@@ -278,9 +278,7 @@ public class SaveManager : MonoBehaviour
 
             SpawnedObjectRecord record = obj.GetComponent<SpawnedObjectRecord>();
             if (record == null)
-            {
                 record = obj.AddComponent<SpawnedObjectRecord>();
-            }
 
             record.prefabId = objectData.prefabId;
         }
@@ -291,17 +289,17 @@ public class SaveManager : MonoBehaviour
         if (File.Exists(SavePath))
         {
             File.Delete(SavePath);
-            Debug.Log("�s�ɤw�R��");
+            Debug.Log("Save file deleted.");
         }
     }
 
-    [ContextMenu("���զs��")]
+    [ContextMenu("Test Save")]
     public void TestSave()
     {
         SaveGame();
     }
 
-    [ContextMenu("����Ū��")]
+    [ContextMenu("Test Load")]
     public void TestLoad()
     {
         LoadGame();
