@@ -3,28 +3,29 @@ using UnityEngine;
 [RequireComponent(typeof(LineRenderer))]
 public class VRRayGrabOre : MonoBehaviour
 {
-    [Header("¤â")]
+    [Header("ï¿½ï¿½")]
     public Transform rightHandTransform;
 
-    [Header("®g½u³]©w")]
+    [Header("ï¿½gï¿½uï¿½]ï¿½w")]
     public float rayLength = 5f;
     public LayerMask interactableLayer;
 
-    [Header("§ì¨ú")]
+    [Header("ï¿½ï¿½ï¿½")]
     private GameObject grabbedObject = null;
     private Rigidbody grabbedRb = null;
 
-    [Header("«õÄq§P©w")]
+    [Header("ï¿½ï¿½ï¿½qï¿½Pï¿½w")]
     public float mineDistance = 0.8f;
     public string pickObjectName = "Pick";
+    public int pickDamagePerHit = 10;
 
-    [Header("Äqª« Prefab")]
+    [Header("ï¿½qï¿½ï¿½ Prefab")]
     public GameObject sandPrefab;
     public GameObject ironOrePrefab;
     public GameObject limestonePrefab;
     public GameObject marblePrefab;
 
-    [Header("¥Í¦¨³]©w")]
+    [Header("ï¿½Í¦ï¿½ï¿½]ï¿½w")]
     public float dropRadius = 0.5f;
     public int minDrop = 1;
     public int maxDrop = 3;
@@ -47,7 +48,7 @@ public class VRRayGrabOre : MonoBehaviour
 
         Ray ray = new Ray(rightHandTransform.position, rightHandTransform.forward);
 
-        // ®g½uÅã¥Ü
+        // ï¿½gï¿½uï¿½ï¿½ï¿½
         line.SetPosition(0, rightHandTransform.position);
         line.SetPosition(1, rightHandTransform.position + rightHandTransform.forward * rayLength);
 
@@ -65,7 +66,7 @@ public class VRRayGrabOre : MonoBehaviour
             {
                 if (OVRInput.GetDown(OVRInput.Button.PrimaryIndexTrigger, OVRInput.Controller.RTouch))
                 {
-                    // ¦pªG¤â¤W¥Ø«e¤w¸g®³µÛ Pick¡A´N¤£­n§ì¥@¬Éª«¥ó
+                    // ï¿½pï¿½Gï¿½ï¿½Wï¿½Ø«eï¿½wï¿½gï¿½ï¿½ï¿½ï¿½ Pickï¿½Aï¿½Nï¿½ï¿½ï¿½nï¿½ï¿½@ï¿½Éªï¿½ï¿½ï¿½
                     if (IsHoldingPick()) return;
 
                     GrabObject(hit.collider.gameObject);
@@ -84,7 +85,7 @@ public class VRRayGrabOre : MonoBehaviour
 
     void HandleMining()
     {
-        // ¥u¦³¥k¤â¥Ø«e®³µÛ Pick ¤~¯à«õ
+        // ï¿½uï¿½ï¿½ï¿½kï¿½ï¿½Ø«eï¿½ï¿½ï¿½ï¿½ Pick ï¿½~ï¿½ï¿½ï¿½
         if (!IsHoldingPick()) return;
 
         RaycastHit hit;
@@ -95,7 +96,11 @@ public class VRRayGrabOre : MonoBehaviour
                 RockMining rock = hit.collider.GetComponent<RockMining>();
                 if (rock != null)
                 {
+                    bool pickStillUsable = ResourceManager.Instance == null || ResourceManager.Instance.UseTool(pickObjectName, pickDamagePerHit);
                     rock.HitRock(hit.point);
+
+                    if (!pickStillUsable)
+                        DestroyHeldTool(pickObjectName);
                 }
             }
         }
@@ -109,7 +114,7 @@ public class VRRayGrabOre : MonoBehaviour
         {
             Transform child = rightHandTransform.GetChild(i);
 
-            // ³B²z Instantiate «á¥i¯à¥X²{ªº (Clone)
+            // ï¿½Bï¿½z Instantiate ï¿½ï¿½iï¿½ï¿½Xï¿½{ï¿½ï¿½ (Clone)
             string cleanName = child.name.Replace("(Clone)", "").Trim();
 
             if (cleanName == pickObjectName)
@@ -145,18 +150,18 @@ public class VRRayGrabOre : MonoBehaviour
     void CollectResource(GameObject obj)
     {
         string typeName = obj.name.Replace("(Clone)", "").Trim();
-        Debug.Log("¬B¨ú¨ì¸ê·½: [" + typeName + "]");
+        Debug.Log("ï¿½Bï¿½ï¿½ï¿½ï¿½ê·½: [" + typeName + "]");
 
         if (ResourceManager.Instance != null)
         {
             ResourceManager.Instance.AddResource(typeName, 1);
-            Debug.Log("¤w¥[¤J ResourceManager: " + typeName);
+            Debug.Log("ï¿½wï¿½[ï¿½J ResourceManager: " + typeName);
         }
 
         Destroy(obj);
     }
 
-    // ----------- ¦pªG§A¤§«áÁÙ­n¦b³o¤ä¸Ì­±ÀH¾÷¥ÍÄq¡A¥i¥H«O¯d -----------
+    // ----------- ï¿½pï¿½Gï¿½Aï¿½ï¿½ï¿½ï¿½ï¿½Ù­nï¿½bï¿½oï¿½ï¿½Ì­ï¿½ï¿½Hï¿½ï¿½ï¿½ï¿½ï¿½qï¿½Aï¿½iï¿½Hï¿½Oï¿½d -----------
 
     void MineRock(GameObject rock)
     {
@@ -195,5 +200,19 @@ public class VRRayGrabOre : MonoBehaviour
         }
 
         return sandPrefab;
+    }
+
+    void DestroyHeldTool(string toolName)
+    {
+        if (rightHandTransform == null) return;
+
+        for (int i = rightHandTransform.childCount - 1; i >= 0; i--)
+        {
+            Transform child = rightHandTransform.GetChild(i);
+            string cleanName = child.name.Replace("(Clone)", "").Trim();
+
+            if (cleanName == toolName)
+                Destroy(child.gameObject);
+        }
     }
 }

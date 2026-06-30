@@ -19,7 +19,12 @@ public class InventorySlotUI : MonoBehaviour
     {
         if (countText == null || ResourceManager.Instance == null) return;
 
-        countText.text = ResourceManager.Instance.GetResource(resourceName).ToString();
+        ResourceManager.CraftRecipe recipe = ResourceManager.Instance.GetRecipe(resourceName);
+        int amount = recipe != null
+            ? ResourceManager.Instance.GetAvailableCraftCount(resourceName)
+            : ResourceManager.Instance.GetResource(resourceName);
+
+        countText.text = amount.ToString();
     }
 
     public void SetSelected(bool selected)

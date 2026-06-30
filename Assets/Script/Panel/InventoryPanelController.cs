@@ -3,7 +3,7 @@ using TMPro;
 
 public class InventoryPanelController : MonoBehaviour
 {
-    [Header("¥ª¤â")]
+    [Header("å·¦æ‰‹")]
     public Transform leftHand;
 
     [Header("Panel")]
@@ -13,16 +13,16 @@ public class InventoryPanelController : MonoBehaviour
     [Header("Title")]
     public TextMeshProUGUI titleText;
 
-    [Header("Àô¹Ò Sections")]
+    [Header("ç’°å¢ƒ Sections")]
     public GameObject[] sections;
 
-    [Header("Àô¹Ò¦WºÙ")]
+    [Header("ç’°å¢ƒåç¨±")]
     public string[] sectionNames;
 
-    [Header("¨C­ÓÀô¹Òªº Slot ®e¾¹¡]HorizontalSlots¡^")]
+    [Header("æ¯å€‹ç’°å¢ƒçš„ Slot å®¹å™¨ï¼ˆHorizontalSlotsï¼‰")]
     public Transform[] slotParents;
 
-    [Header("ª±®a²¾°Ê¸}¥»¡]Panel¶}±Ò®É°±¥Î¡^")]
+    [Header("çŽ©å®¶ç§»å‹•è…³æœ¬ï¼ˆPanelé–‹å•Ÿæ™‚åœç”¨ï¼‰")]
     public MonoBehaviour[] locomotionScripts;
 
     private InventorySlotUI[][] slots;
@@ -30,7 +30,7 @@ public class InventoryPanelController : MonoBehaviour
     private int currentSection = 0;
     private int currentSlot = 0;
 
-    [Header("¿é¤J³]©w")]
+    [Header("è¼¸å…¥è¨­å®š")]
     public float inputCooldown = 0.25f;
     private float lastInputTime = 0f;
 
@@ -57,6 +57,7 @@ public class InventoryPanelController : MonoBehaviour
     {
         HandlePanelToggle();
         HandlePanelFollow();
+        RefreshCraftableSlotVisibility();
 
         if (panel == null || !panel.activeSelf) return;
 
@@ -156,13 +157,13 @@ public class InventoryPanelController : MonoBehaviour
 
         if (axis.x > 0.5f)
         {
-            currentSlot = (currentSlot + 1) % slotCount;
+            currentSlot = GetNextAvailableSlotIndex(1, slotCount);
             UpdateSlotSelection();
             lastInputTime = Time.time;
         }
         else if (axis.x < -0.5f)
         {
-            currentSlot = (currentSlot - 1 + slotCount) % slotCount;
+            currentSlot = GetNextAvailableSlotIndex(-1, slotCount);
             UpdateSlotSelection();
             lastInputTime = Time.time;
         }
@@ -187,9 +188,27 @@ public class InventoryPanelController : MonoBehaviour
         UpdateSlotSelection();
     }
 
+    int GetNextAvailableSlotIndex(int direction, int slotCount)
+    {
+        if (slotCount <= 0) return currentSlot;
+
+        for (int step = 1; step <= slotCount; step++)
+        {
+            int nextIndex = (currentSlot + direction * step + slotCount) % slotCount;
+
+            if (IsSlotVisible(currentSection, nextIndex))
+                return nextIndex;
+        }
+
+        return currentSlot;
+    }
+
     void UpdateSlotSelection()
     {
         if (slots == null) return;
+
+        if (currentSection >= 0 && currentSection < slots.Length)
+            currentSlot = GetFirstVisibleSlotOrCurrent(currentSection, currentSlot);
 
         for (int s = 0; s < slots.Length; s++)
         {
@@ -201,6 +220,61 @@ public class InventoryPanelController : MonoBehaviour
                 slots[s][i].SetSelected(selected);
             }
         }
+    }
+
+    void RefreshCraftableSlotVisibility()
+    {
+        if (slots == null || ResourceManager.Instance == null) return;
+
+        for (int s = 0; s < slots.Length; s++)
+        {
+            if (slots[s] == null) continue;
+
+            for (int i = 0; i < slots[s].Length; i++)
+            {
+                InventorySlotUI slot = slots[s][i];
+                if (slot == null || string.IsNullOrEmpty(slot.resourceName)) continue;
+
+                ResourceManager.CraftRecipe recipe = ResourceManager.Instance.GetRecipe(slot.resourceName);
+                if (recipe == null) continue;
+
+                if (slot.isTool)
+                {
+                    slot.gameObject.SetActive(true);
+                    continue;
+                }
+
+                slot.gameObject.SetActive(ResourceManager.Instance.GetAvailableCraftCount(slot.resourceName) > 0);
+            }
+        }
+    }
+
+    int GetFirstVisibleSlotOrCurrent(int sectionIndex, int preferredIndex)
+    {
+        if (slots[sectionIndex] == null || slots[sectionIndex].Length == 0)
+            return preferredIndex;
+
+        if (IsSlotVisible(sectionIndex, preferredIndex))
+            return preferredIndex;
+
+        for (int i = 0; i < slots[sectionIndex].Length; i++)
+        {
+            if (IsSlotVisible(sectionIndex, i))
+                return i;
+        }
+
+        return preferredIndex;
+    }
+
+    bool IsSlotVisible(int sectionIndex, int slotIndex)
+    {
+        if (slots == null) return false;
+        if (sectionIndex < 0 || sectionIndex >= slots.Length) return false;
+        if (slots[sectionIndex] == null) return false;
+        if (slotIndex < 0 || slotIndex >= slots[sectionIndex].Length) return false;
+        if (slots[sectionIndex][slotIndex] == null) return false;
+
+        return slots[sectionIndex][slotIndex].gameObject.activeInHierarchy;
     }
 
     public InventorySlotUI GetCurrentSlot()
@@ -236,7 +310,7 @@ public class InventoryPanelController : MonoBehaviour
         {
             if (locomotionScripts[i] != null)
             {
-                Debug.Log("¤Á´«¸}¥»: " + locomotionScripts[i].GetType().Name + " -> " + enabledState);
+                Debug.Log("åˆ‡æ›è…³æœ¬: " + locomotionScripts[i].GetType().Name + " -> " + enabledState);
                 locomotionScripts[i].enabled = enabledState;
             }
         }
@@ -244,6 +318,8 @@ public class InventoryPanelController : MonoBehaviour
 
     public void RefreshResourceUI()
     {
+        RefreshCraftableSlotVisibility();
+
         if (resourceBinder != null)
             resourceBinder.RefreshUI();
     }

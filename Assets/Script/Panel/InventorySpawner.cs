@@ -161,6 +161,30 @@ public class InventorySpawner : MonoBehaviour
         return true;
     }
 
+    bool TryPrepareSlotItem(string resourceName)
+    {
+        if (ResourceManager.Instance == null)
+        {
+            Debug.LogWarning("ResourceManager not found, cannot prepare item: " + resourceName);
+            return false;
+        }
+
+        ResourceManager.CraftRecipe recipe = ResourceManager.Instance.GetRecipe(resourceName);
+        if (recipe == null)
+            return ResourceManager.Instance.GetResource(resourceName) > 0;
+
+        if (!ResourceManager.Instance.TryPrepareItem(resourceName))
+        {
+            Debug.LogWarning("Not enough resources to prepare item: " + resourceName);
+            return false;
+        }
+
+        if (panelController != null)
+            panelController.RefreshResourceUI();
+
+        return true;
+    }
+
     void HandleGripRelease()
     {
         if (currentSpawnedObject == null) return;

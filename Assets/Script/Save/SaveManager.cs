@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
@@ -79,6 +79,22 @@ public class SaveManager : MonoBehaviour
             {
                 resourceName = pair.Key,
                 amount = pair.Value
+            });
+        }
+    }
+
+    private void SaveToolDurabilities(SaveData data)
+    {
+        if (ResourceManager.Instance == null) return;
+
+        Dictionary<string, int> allDurabilities = ResourceManager.Instance.GetAllToolDurabilities();
+
+        foreach (var pair in allDurabilities)
+        {
+            data.toolDurabilities.Add(new ToolDurabilitySaveData
+            {
+                toolName = pair.Key,
+                durability = pair.Value
             });
         }
     }
@@ -183,6 +199,17 @@ public class SaveManager : MonoBehaviour
         }
 
         ResourceManager.Instance.ReplaceAllResources(loadedResources);
+    }
+
+    private void LoadToolDurabilities(SaveData data)
+    {
+        if (ResourceManager.Instance == null || data.toolDurabilities == null) return;
+
+        foreach (var item in data.toolDurabilities)
+        {
+            if (item == null || string.IsNullOrEmpty(item.toolName)) continue;
+            ResourceManager.Instance.SetToolDurability(item.toolName, item.durability);
+        }
     }
 
     private void LoadKarma(SaveData data)

@@ -25,6 +25,7 @@ public class VRRayGrab_Forest : MonoBehaviour
     [Header("砍樹判定")]
     public float chopDistance = 0.3f;
     public float chopCooldown = 0.5f;
+    public int axeDamagePerChop = 10;
     private float lastChopTime = -999f;
 
     [Header("掉落物 Prefab")]
@@ -230,6 +231,7 @@ public class VRRayGrab_Forest : MonoBehaviour
     {
         if (tree == null) return;
 
+        bool axeStillUsable = ResourceManager.Instance == null || ResourceManager.Instance.UseTool(axeObjectName, axeDamagePerChop);
         Vector3 treePos = tree.transform.position;
         //  加在這裡
         if (KarmaSystem.Instance != null)
@@ -275,6 +277,23 @@ public class VRRayGrab_Forest : MonoBehaviour
             {
                 rb.AddForce(Vector3.up * UnityEngine.Random.Range(0.5f, 1.5f), ForceMode.Impulse);
             }
+        }
+
+        if (!axeStillUsable)
+            DestroyHeldTool(axeObjectName);
+    }
+
+    void DestroyHeldTool(string toolName)
+    {
+        if (rightHandTransform == null) return;
+
+        for (int i = rightHandTransform.childCount - 1; i >= 0; i--)
+        {
+            Transform child = rightHandTransform.GetChild(i);
+            string cleanName = CleanName(child.name);
+
+            if (cleanName == toolName || cleanName.Contains(toolName))
+                Destroy(child.gameObject);
         }
     }
 }

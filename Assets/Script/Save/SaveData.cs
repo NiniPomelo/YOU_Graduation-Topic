@@ -16,6 +16,7 @@ public class SaveData
     public bool isDisasterEnding;
 
     public List<ResourceSaveData> resources = new List<ResourceSaveData>();
+    public List<ToolDurabilitySaveData> toolDurabilities = new List<ToolDurabilitySaveData>();
 
     public List<SpawnedObjectSaveData> spawnedObjects = new List<SpawnedObjectSaveData>();
 }
@@ -25,6 +26,13 @@ public class ResourceSaveData
 {
     public string resourceName;
     public int amount;
+}
+
+[System.Serializable]
+public class ToolDurabilitySaveData
+{
+    public string toolName;
+    public int durability;
 }
 
 [System.Serializable]
