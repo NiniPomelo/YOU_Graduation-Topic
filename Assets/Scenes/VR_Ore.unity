@@ -4800,14 +4800,16 @@ MonoBehaviour:
   driverViewPositionOffset: {x: 0, y: 0, z: 0}
   driverViewRotationOffset: {x: 0, y: 90, z: 0}
   enableCarDriving: 1
-  driveSpeed: 6
+  driveSpeed: 12
   reverseSpeed: 3
-  turnSpeed: 60
+  turnSpeed: 30
   inputDeadZone: 0.15
   throttleController: 1
   throttleAxis: 1
   steeringController: 2
   steeringAxis: 1
+  turnPivot: {fileID: 1580360886}
+  forwardReference: {fileID: 1171027923}
   groundLayerMask:
     serializedVersion: 2
     m_Bits: 4294967295
@@ -4815,6 +4817,7 @@ MonoBehaviour:
   groundRaycastDistance: 8
   groundOffset: 0.2
   groundAlignSpeed: 12
+  groundProbe: {fileID: 1580360886}
   autoDisablePlayerScripts: 1
   disableWhileInCar: []
 --- !u!4 &812071029
@@ -4831,10 +4834,11 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 631833985}
-  - {fileID: 1687461536}
   - {fileID: 785368173}
   - {fileID: 271947517}
   - {fileID: 1499623013}
+  - {fileID: 1580360886}
+  - {fileID: 1171027923}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!65 &812071030
@@ -7427,6 +7431,38 @@ Transform:
   m_Children: []
   m_Father: {fileID: 148320510}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1171027922
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1171027923}
+  m_Layer: 0
+  m_Name: CarForward
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1171027923
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1171027922}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0.7071068, z: 0, w: 0.7071068}
+  m_LocalPosition: {x: -208.3, y: 19.95, z: -142.18}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 1687461536}
+  m_Father: {fileID: 812071029}
+  m_LocalEulerAnglesHint: {x: 0, y: 90, z: 0}
 --- !u!1 &1177727162
 GameObject:
   m_ObjectHideFlags: 0
@@ -10106,6 +10142,37 @@ Transform:
   m_Children: []
   m_Father: {fileID: 482338433}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1580360885
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1580360886}
+  m_Layer: 0
+  m_Name: CarPivot
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1580360886
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1580360885}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -208.3, y: 19.7, z: -142.34}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 812071029}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1585370728
 GameObject:
   m_ObjectHideFlags: 0
@@ -10932,12 +10999,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1687461535}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -207.72, y: 21.11, z: -141.744}
+  m_LocalRotation: {x: -0, y: -0.7071068, z: -0, w: 0.7071068}
+  m_LocalPosition: {x: -0.4359895, y: 1.1599998, z: 0.5800018}
   m_LocalScale: {x: 0, y: 0, z: 0}
   m_ConstrainProportionsScale: 1
   m_Children: []
-  m_Father: {fileID: 812071029}
+  m_Father: {fileID: 1171027923}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1691630176
 GameObject:
