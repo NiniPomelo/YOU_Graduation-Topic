@@ -4613,6 +4613,7 @@ MonoBehaviour:
     m_Bits: 64
   mineDistance: 0.3
   pickObjectName: Pick
+  pickDamagePerHit: 1
   sandPrefab: {fileID: 5887234245489639000, guid: f067b4dc692ff4d4d9eeee174979b395, type: 3}
   ironOrePrefab: {fileID: 6971274278458162871, guid: a2dbfd7c08cf0e24bb1cede7bb744707, type: 3}
   limestonePrefab: {fileID: 6482656978789391722, guid: d053e585b008b4a4db87ab85b4ebc8d9, type: 3}
@@ -10975,6 +10976,9 @@ MonoBehaviour:
   seedResourceName: Seed
   sproutPrefab: {fileID: 0}
   sproutPrefabId: Sprout
+  craftDialogPanel: {fileID: 1878652724}
+  craftDialogTitleText: {fileID: 1878652723}
+  craftDialogQuantityText: {fileID: 1878652722}
 --- !u!1 &1687461535
 GameObject:
   m_ObjectHideFlags: 0
@@ -12066,6 +12070,33 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1833641434}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1878652722 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 8149425207368865313, guid: 3b281b32d1fad4b40a1ca5f78bfa5e5f, type: 3}
+  m_PrefabInstance: {fileID: 984001869}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.TextMeshPro::TMPro.TextMeshProUGUI
+--- !u!114 &1878652723 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 1548373882504621479, guid: 3b281b32d1fad4b40a1ca5f78bfa5e5f, type: 3}
+  m_PrefabInstance: {fileID: 984001869}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.TextMeshPro::TMPro.TextMeshProUGUI
+--- !u!1 &1878652724 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 7285642981117715727, guid: 3b281b32d1fad4b40a1ca5f78bfa5e5f, type: 3}
+  m_PrefabInstance: {fileID: 984001869}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1888190059
 GameObject:
   m_ObjectHideFlags: 0

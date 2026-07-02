@@ -1,38 +1,38 @@
-using UnityEngine;
+﻿using UnityEngine;
 using System;
 
 [RequireComponent(typeof(LineRenderer))]
 public class VRRayGrab_Forest : MonoBehaviour
 {
-    [Header("手")]
+    [Header("Right Hand")]
     public Transform rightHandTransform;
 
-    [Header("射線設定")]
+    [Header("撠?閮剖?")]
     public float rayLength = 5f;
     public LayerMask interactableLayer;
 
-    [Header("抓取")]
+    [Header("??")]
     private GameObject grabbedObject = null;
     private Rigidbody grabbedRb = null;
 
-    [Header("工具判定")]
+    [Header("撌亙?文?")]
     public string axeObjectName = "Axe";
 
-    [Header("可收集物名稱")]
+    [Header("?舀??迂")]
     public string woodObjectName = "Wood";
     public string seedObjectName = "Seed";
 
-    [Header("砍樹判定")]
+    [Header("?邦?文?")]
     public float chopDistance = 0.3f;
     public float chopCooldown = 0.5f;
-    public int axeDamagePerChop = 10;
+    public int axeDamagePerChop = 1;
     private float lastChopTime = -999f;
 
-    [Header("掉落物 Prefab")]
+    [Header("???Prefab")]
     public GameObject woodPrefab;
     public GameObject seedPrefab;
 
-    [Header("生成範圍與數量")]
+    [Header("Drop Settings")]
     public float dropRadius = 0.5f;
     public int minWood = 1;
     public int maxWood = 3;
@@ -57,7 +57,7 @@ public class VRRayGrab_Forest : MonoBehaviour
 
         Ray ray = new Ray(rightHandTransform.position, rightHandTransform.forward);
 
-        // 射線顯示
+        // 撠?憿舐內
         line.SetPosition(0, rightHandTransform.position);
         line.SetPosition(1, rightHandTransform.position + rightHandTransform.forward * rayLength);
 
@@ -73,22 +73,22 @@ public class VRRayGrab_Forest : MonoBehaviour
 
             if (target != null)
             {
-                Debug.Log("Forest 有效命中物件：" + target.name);
+                Debug.Log("Forest hit target: " + target.name);
 
                 if (OVRInput.GetDown(OVRInput.Button.PrimaryIndexTrigger, OVRInput.Controller.RTouch))
                 {
-                    // 手上拿 Axe 時，只允許抓可收集物
+                    // ????Axe ???芸?閮望??舀?
                     if (IsHoldingAxe())
                     {
                         if (!IsCollectible(target))
                         {
-                            Debug.Log("手上有 Axe，但命中物不是可收集物，略過：" + target.name);
+                            Debug.Log("Holding Axe, ignored non-collectible target: " + target.name);
                             return;
                         }
                     }
 
                     GrabObject(target);
-                    Debug.Log("成功抓取：" + target.name);
+                    Debug.Log("Grabbed object: " + target.name);
                 }
             }
         }
@@ -96,7 +96,7 @@ public class VRRayGrab_Forest : MonoBehaviour
         {
             if (OVRInput.GetUp(OVRInput.Button.PrimaryIndexTrigger, OVRInput.Controller.RTouch))
             {
-                Debug.Log("放開 Trigger，收集：" + grabbedObject.name);
+                Debug.Log("?暸? Trigger嚗??" + grabbedObject.name);
                 CollectResource(grabbedObject);
                 ReleaseObject();
             }
@@ -114,7 +114,7 @@ public class VRRayGrab_Forest : MonoBehaviour
         {
             GameObject obj = hits[i].collider.gameObject;
 
-            // 忽略右手本體與右手底下所有子物件（例如 Axe）
+            // 敹賜?單??祇????銝????拐辣嚗?憒?Axe嚗?
             if (obj.transform == rightHandTransform || obj.transform.IsChildOf(rightHandTransform))
                 continue;
 
@@ -221,7 +221,7 @@ public class VRRayGrab_Forest : MonoBehaviour
         }
         else
         {
-            Debug.LogWarning("ResourceManager.Instance 為 null");
+            Debug.LogWarning("ResourceManager.Instance ??null");
         }
 
         Destroy(obj);
@@ -233,15 +233,15 @@ public class VRRayGrab_Forest : MonoBehaviour
 
         bool axeStillUsable = ResourceManager.Instance == null || ResourceManager.Instance.UseTool(axeObjectName, axeDamagePerChop);
         Vector3 treePos = tree.transform.position;
-        //  加在這裡
+        //  ??ㄐ
         if (KarmaSystem.Instance != null)
             KarmaSystem.Instance.AddForestNegative(1);
 
-        // 樹倒下
+        // 璅孵?
         tree.transform.Rotate(Vector3.right, 90f);
         Destroy(tree, 1f);
 
-        // 生成 Wood
+        // ?? Wood
         int woodCount = UnityEngine.Random.Range(minWood, maxWood + 1);
         for (int i = 0; i < woodCount; i++)
         {
@@ -260,7 +260,7 @@ public class VRRayGrab_Forest : MonoBehaviour
             }
         }
 
-        // 生成 Seed
+        // ?? Seed
         int seedCount = UnityEngine.Random.Range(minSeed, maxSeed + 1);
         for (int i = 0; i < seedCount; i++)
         {

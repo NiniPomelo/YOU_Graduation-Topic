@@ -1,28 +1,28 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 
 public class SceneCollisionDebug : MonoBehaviour
 {
-    [Header("¦@¥Î Panel")]
+    [Header("å…±ç”¨ Panel")]
     public InventoryPanelController inventoryPanel;
 
-    [Header("¥Í¦¨«öÁä")]
+    [Header("ç”ŸæˆæŒ‰éµ")]
     public OVRInput.Button spawnButton = OVRInput.Button.PrimaryIndexTrigger;
 
-    [Header("®g½u°_ÂI")]
-    public Transform rayStartPoint;   // ©ì RightHandAnchor
+    [Header("å°„ç·šèµ·é»")]
+    public Transform rayStartPoint;   // æ‹– RightHandAnchor
     public float spawnDistance = 1.5f;
 
-    [Header("¶K¦a³]©w")]
+    [Header("è²¼åœ°è¨­å®š")]
     public bool stickToGround = true;
-    public float groundY = 0f;         // ¦a­±°ª«×¡A³q±`¥ı¥Î 0
-    public float yOffset = 0.02f;      // Á×§Kª«¥ó³´¶i¦a­±
+    public float groundY = 0f;         // åœ°é¢é«˜åº¦ï¼Œé€šå¸¸å…ˆç”¨ 0
+    public float yOffset = 0.02f;      // é¿å…ç‰©ä»¶é™·é€²åœ°é¢
 
-    [Header("¥iµø¤Æ®g½u")]
+    [Header("å¯è¦–åŒ–å°„ç·š")]
     public bool useLineVisual = true;
     public LineRenderer line;
     public float lineLength = 1.5f;
 
-    [Header("¥Í¦¨§N«o")]
+    [Header("ç”Ÿæˆå†·å»")]
     public float inputCooldown = 0.2f;
     private float lastInputTime;
 
@@ -82,7 +82,7 @@ public class SceneCollisionDebug : MonoBehaviour
         if (!showLine) return;
 
         Vector3 startPos = rayStartPoint.position + rayStartPoint.forward * 0.03f;
-        Vector3 endPos = GetFixedSpawnPosition();
+        Vector3 endPos = startPos + rayStartPoint.forward * lineLength;
 
         line.SetPosition(0, startPos);
         line.SetPosition(1, endPos);
@@ -92,17 +92,20 @@ public class SceneCollisionDebug : MonoBehaviour
     {
         if (inventoryPanel == null)
         {
-            Debug.LogWarning("inventoryPanel ¨S¦³«ü©w");
+            Debug.LogWarning("inventoryPanel æ²’æœ‰æŒ‡å®š");
             return;
         }
 
         if (rayStartPoint == null)
         {
-            Debug.LogWarning("rayStartPoint ¨S¦³«ü©w¡A½Ğ©ì RightHandAnchor");
+            Debug.LogWarning("rayStartPoint æ²’æœ‰æŒ‡å®šï¼Œè«‹æ‹– RightHandAnchor");
             return;
         }
 
         if (inventoryPanel.GetCurrentSectionIndex() != 0)
+            return;
+
+        if (CraftQuantityDialog.AnyDialogOpen)
             return;
 
         float triggerValue = OVRInput.Get(
@@ -120,7 +123,7 @@ public class SceneCollisionDebug : MonoBehaviour
 
         if (slot == null)
         {
-            Debug.LogWarning("¥Ø«e¨S¦³¿ï¨ì¥ô¦ó Slot");
+            Debug.LogWarning("ç›®å‰æ²’æœ‰é¸åˆ°ä»»ä½• Slot");
             return;
         }
 
@@ -128,9 +131,12 @@ public class SceneCollisionDebug : MonoBehaviour
 
         if (prefabToSpawn == null)
         {
-            Debug.LogWarning("¥Ø«e¿ï¨ìªº Slot ¨S¦³³]©w spawnPrefab");
+            Debug.LogWarning("ç›®å‰é¸åˆ°çš„ Slot æ²’æœ‰è¨­å®š spawnPrefab");
             return;
         }
+
+        if (!TryConsumeSelectedSlotForSpawn(slot))
+            return;
 
         Vector3 spawnPos = GetFixedSpawnPosition();
 
@@ -157,9 +163,34 @@ public class SceneCollisionDebug : MonoBehaviour
 
         lastInputTime = Time.time;
 
-        Debug.Log("©T©w¦ì¸m¥Í¦¨ Prefab: " + prefabToSpawn.name + " at " + spawnPos);
+        Debug.Log("å›ºå®šä½ç½®ç”Ÿæˆ Prefab: " + prefabToSpawn.name + " at " + spawnPos);
     }
 
+    bool TryConsumeSelectedSlotForSpawn(InventorySlotUI slot)
+    {
+        if (slot == null || string.IsNullOrEmpty(slot.resourceName))
+            return false;
+
+        if (ResourceManager.Instance == null)
+        {
+            Debug.LogWarning("ResourceManager not found, cannot spawn: " + slot.resourceName);
+            return false;
+        }
+
+        if (ResourceManager.Instance.IsToolItem(slot.resourceName))
+            return true;
+
+        if (!ResourceManager.Instance.ConsumeResource(slot.resourceName, 1))
+        {
+            Debug.LogWarning("Not enough owned prefab count to spawn: " + slot.resourceName);
+            return false;
+        }
+
+        if (inventoryPanel != null)
+            inventoryPanel.RefreshResourceUI();
+
+        return true;
+    }
     Vector3 GetFixedSpawnPosition()
     {
         Vector3 pos = rayStartPoint.position + rayStartPoint.forward * spawnDistance;

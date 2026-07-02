@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -38,8 +38,8 @@ public class ResourceManager : MonoBehaviour
     public string starterPickName = "Pick";
 
     [Header("Tool Durability")]
-    public int axeMaxDurability = 100;
-    public int pickMaxDurability = 100;
+    public int axeMaxDurability = 50;
+    public int pickMaxDurability = 50;
 
     private readonly Dictionary<string, int> resources = new Dictionary<string, int>();
     private readonly Dictionary<string, int> toolDurability = new Dictionary<string, int>();
@@ -65,6 +65,7 @@ public class ResourceManager : MonoBehaviour
 
     public void AddResource(string resourceName, int amount)
     {
+        resourceName = NormalizeResourceName(resourceName);
         if (string.IsNullOrEmpty(resourceName) || amount == 0) return;
 
         if (!resources.ContainsKey(resourceName))
@@ -79,6 +80,7 @@ public class ResourceManager : MonoBehaviour
 
     public bool ConsumeResource(string resourceName, int amount)
     {
+        resourceName = NormalizeResourceName(resourceName);
         if (string.IsNullOrEmpty(resourceName) || amount <= 0) return false;
 
         int currentAmount = GetResource(resourceName);
@@ -97,47 +99,52 @@ public class ResourceManager : MonoBehaviour
 
     public int GetAvailableCraftCount(string itemName)
     {
-        int ownedAmount = GetResource(itemName);
+        itemName = NormalizeResourceName(itemName);
+        return GetResource(itemName) + GetCraftableCount(itemName);
+    }
+
+    public int GetCraftableCount(string itemName)
+    {
+        itemName = NormalizeResourceName(itemName);
         CraftRecipe recipe = GetRecipe(itemName);
-
-        if (recipe == null)
-            return ownedAmount;
-
-        return ownedAmount + GetCraftableAmount(recipe);
+        return recipe == null ? 0 : GetCraftableAmount(recipe);
     }
 
     public bool TryPrepareItem(string itemName)
     {
-        if (string.IsNullOrEmpty(itemName)) return false;
-
+        itemName = NormalizeResourceName(itemName);
         if (GetResource(itemName) > 0)
             return true;
 
-        CraftRecipe recipe = GetRecipe(itemName);
-        if (recipe == null)
-            return false;
+        return TryCraftItems(itemName, 1);
+    }
 
-        if (GetCraftableAmount(recipe) <= 0)
-            return false;
+    public bool TryCraftItems(string itemName, int quantity)
+    {
+        itemName = NormalizeResourceName(itemName);
+        if (string.IsNullOrEmpty(itemName) || quantity <= 0) return false;
+
+        CraftRecipe recipe = GetRecipe(itemName);
+        if (recipe == null) return false;
+        if (GetCraftableAmount(recipe) < quantity) return false;
 
         for (int i = 0; i < recipe.costs.Length; i++)
         {
             ResourceCost cost = recipe.costs[i];
             if (cost == null) continue;
 
-            resources[cost.resourceName] = GetResource(cost.resourceName) - cost.amount;
+            resources[cost.resourceName] = GetResource(cost.resourceName) - cost.amount * quantity;
         }
+
+        if (!resources.ContainsKey(itemName))
+            resources[itemName] = 0;
+
+        resources[itemName] += quantity;
 
         if (IsTool(itemName))
-        {
-            if (!resources.ContainsKey(itemName))
-                resources[itemName] = 0;
-
-            resources[itemName] += 1;
             toolDurability[itemName] = GetMaxDurability(itemName);
-        }
 
-        Debug.Log("Crafted item -> " + itemName);
+        Debug.Log("Crafted item -> " + itemName + " x " + quantity);
         AutoSaveIfAllowed();
 
         return true;
@@ -145,6 +152,7 @@ public class ResourceManager : MonoBehaviour
 
     public bool UseTool(string toolName, int damage)
     {
+        toolName = NormalizeResourceName(toolName);
         if (!IsTool(toolName) || damage <= 0) return true;
         if (GetResource(toolName) <= 0) return false;
 
@@ -172,6 +180,7 @@ public class ResourceManager : MonoBehaviour
 
     public int GetToolDurability(string toolName)
     {
+        toolName = NormalizeResourceName(toolName);
         if (!IsTool(toolName) || GetResource(toolName) <= 0) return 0;
 
         EnsureToolDurability(toolName);
@@ -180,6 +189,7 @@ public class ResourceManager : MonoBehaviour
 
     public int GetResource(string resourceName)
     {
+        resourceName = NormalizeResourceName(resourceName);
         if (string.IsNullOrEmpty(resourceName)) return 0;
         return resources.TryGetValue(resourceName, out int value) ? value : 0;
     }
@@ -188,6 +198,7 @@ public class ResourceManager : MonoBehaviour
     {
         resources.Clear();
         toolDurability.Clear();
+        GrantStarterTools();
         Debug.Log("All resources reset");
     }
 
@@ -201,8 +212,14 @@ public class ResourceManager : MonoBehaviour
             foreach (var pair in newResources)
             {
                 if (string.IsNullOrEmpty(pair.Key)) continue;
-                resources[pair.Key] = Mathf.Max(0, pair.Value);
-                EnsureToolDurability(pair.Key);
+                string resourceName = NormalizeResourceName(pair.Key);
+                if (string.IsNullOrEmpty(resourceName)) continue;
+
+                if (!resources.ContainsKey(resourceName))
+                    resources[resourceName] = 0;
+
+                resources[resourceName] += Mathf.Max(0, pair.Value);
+                EnsureToolDurability(resourceName);
             }
         }
 
@@ -224,6 +241,7 @@ public class ResourceManager : MonoBehaviour
 
     public void SetToolDurability(string toolName, int durability)
     {
+        toolName = NormalizeResourceName(toolName);
         if (!IsTool(toolName) || GetResource(toolName) <= 0) return;
 
         toolDurability[toolName] = Mathf.Clamp(durability, 1, GetMaxDurability(toolName));
@@ -231,6 +249,7 @@ public class ResourceManager : MonoBehaviour
 
     public CraftRecipe GetRecipe(string itemName)
     {
+        itemName = NormalizeResourceName(itemName);
         if (string.IsNullOrEmpty(itemName)) return null;
         if (defaultRecipes == null) InitializeDefaultRecipes();
 
@@ -243,6 +262,11 @@ public class ResourceManager : MonoBehaviour
         return null;
     }
 
+    public bool IsToolItem(string resourceName)
+    {
+        resourceName = NormalizeResourceName(resourceName);
+        return IsTool(resourceName);
+    }
     public void SetAutoSaveSuppressed(bool suppressed)
     {
         suppressAutoSave = suppressed;
@@ -315,9 +339,10 @@ public class ResourceManager : MonoBehaviour
 
     private void GrantStarterTool(string toolName)
     {
+        toolName = NormalizeResourceName(toolName);
         if (string.IsNullOrEmpty(toolName)) return;
 
-        if (!resources.ContainsKey(toolName))
+        if (GetResource(toolName) < 1)
             resources[toolName] = 1;
 
         EnsureToolDurability(toolName);
@@ -325,6 +350,7 @@ public class ResourceManager : MonoBehaviour
 
     private void EnsureToolDurability(string toolName)
     {
+        toolName = NormalizeResourceName(toolName);
         if (!IsTool(toolName) || GetResource(toolName) <= 0) return;
 
         if (!toolDurability.ContainsKey(toolName))
@@ -333,14 +359,34 @@ public class ResourceManager : MonoBehaviour
 
     private bool IsTool(string resourceName)
     {
+        resourceName = NormalizeResourceName(resourceName);
         return resourceName == starterAxeName || resourceName == starterPickName;
     }
 
     private int GetMaxDurability(string toolName)
     {
+        toolName = NormalizeResourceName(toolName);
         if (toolName == starterAxeName) return axeMaxDurability;
         if (toolName == starterPickName) return pickMaxDurability;
 
         return 100;
     }
+
+    private string NormalizeResourceName(string resourceName)
+    {
+        if (string.IsNullOrWhiteSpace(resourceName)) return string.Empty;
+
+        string normalized = resourceName.Trim();
+
+        if (normalized == "Iron Ore")
+            return "IronOre";
+
+        if (normalized == "Factory 1")
+            return "Factory";
+
+        return normalized;
+    }
 }
+
+
+

@@ -3,7 +3,7 @@ using TMPro;
 
 public class InventorySlotUI : MonoBehaviour
 {
-    [Header("¸ê·½¸ê°T")]
+    [Header("è³‡æºè³‡è¨Š")]
     public string resourceName;
     public bool isTool = false;
     public GameObject spawnPrefab;
@@ -11,7 +11,7 @@ public class InventorySlotUI : MonoBehaviour
     [Header("UI")]
     public TextMeshProUGUI countText;
 
-    [Header("¿ï¨ú®ÄªG")]
+    [Header("é¸å–æ•ˆæžœ")]
     public Vector3 normalScale = Vector3.one;
     public Vector3 selectedScale = Vector3.one * 1.2f;
 
@@ -20,11 +20,21 @@ public class InventorySlotUI : MonoBehaviour
         if (countText == null || ResourceManager.Instance == null) return;
 
         ResourceManager.CraftRecipe recipe = ResourceManager.Instance.GetRecipe(resourceName);
-        int amount = recipe != null
-            ? ResourceManager.Instance.GetAvailableCraftCount(resourceName)
-            : ResourceManager.Instance.GetResource(resourceName);
+        int ownedAmount = ResourceManager.Instance.GetResource(resourceName);
 
-        countText.text = amount.ToString();
+        if (recipe == null)
+        {
+            countText.text = ownedAmount.ToString();
+            return;
+        }
+
+        int craftableAmount = ResourceManager.Instance.GetCraftableCount(resourceName);
+        countText.richText = true;
+
+        if (craftableAmount > 0)
+            countText.text = ownedAmount + "\n<color=#FFD84A>+" + craftableAmount + "</color>";
+        else
+            countText.text = ownedAmount.ToString();
     }
 
     public void SetSelected(bool selected)

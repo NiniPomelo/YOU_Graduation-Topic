@@ -4106,6 +4106,7 @@ MonoBehaviour:
   seedObjectName: Seed
   chopDistance: 0.8
   chopCooldown: 0.5
+  axeDamagePerChop: 1
   woodPrefab: {fileID: 4584082910250122044, guid: 0d0fa615742437846ad8a6dc54d23a3e, type: 3}
   seedPrefab: {fileID: 2478576959553972566, guid: e79c64fda616ae345adabe87a543f9a1, type: 3}
   dropRadius: 0.5
@@ -4716,10 +4717,6 @@ PrefabInstance:
       propertyPath: m_SizeDelta.x
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 2714682537467396628, guid: 3b281b32d1fad4b40a1ca5f78bfa5e5f, type: 3}
-      propertyPath: isTool
-      value: 1
-      objectReference: {fileID: 0}
     - target: {fileID: 3681014045791436692, guid: 3b281b32d1fad4b40a1ca5f78bfa5e5f, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
@@ -4736,21 +4733,9 @@ PrefabInstance:
       propertyPath: m_SizeDelta.x
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 5496937440623339745, guid: 3b281b32d1fad4b40a1ca5f78bfa5e5f, type: 3}
-      propertyPath: isTool
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 5665026449039166462, guid: 3b281b32d1fad4b40a1ca5f78bfa5e5f, type: 3}
-      propertyPath: isTool
-      value: 1
-      objectReference: {fileID: 0}
     - target: {fileID: 5901695606702275449, guid: 3b281b32d1fad4b40a1ca5f78bfa5e5f, type: 3}
       propertyPath: m_Name
       value: Canvas
-      objectReference: {fileID: 0}
-    - target: {fileID: 6411513739165766458, guid: 3b281b32d1fad4b40a1ca5f78bfa5e5f, type: 3}
-      propertyPath: isTool
-      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6516009861582298132, guid: 3b281b32d1fad4b40a1ca5f78bfa5e5f, type: 3}
       propertyPath: m_AnchorMax.y
@@ -4759,10 +4744,6 @@ PrefabInstance:
     - target: {fileID: 6516009861582298132, guid: 3b281b32d1fad4b40a1ca5f78bfa5e5f, type: 3}
       propertyPath: m_AnchorMin.y
       value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6835016369882115551, guid: 3b281b32d1fad4b40a1ca5f78bfa5e5f, type: 3}
-      propertyPath: isTool
-      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7393718241428735155, guid: 3b281b32d1fad4b40a1ca5f78bfa5e5f, type: 3}
       propertyPath: m_AnchorMax.y
@@ -4845,6 +4826,33 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 3b281b32d1fad4b40a1ca5f78bfa5e5f, type: 3}
+--- !u!114 &602235196 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 8149425207368865313, guid: 3b281b32d1fad4b40a1ca5f78bfa5e5f, type: 3}
+  m_PrefabInstance: {fileID: 602235195}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.TextMeshPro::TMPro.TextMeshProUGUI
+--- !u!114 &602235197 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 1548373882504621479, guid: 3b281b32d1fad4b40a1ca5f78bfa5e5f, type: 3}
+  m_PrefabInstance: {fileID: 602235195}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.TextMeshPro::TMPro.TextMeshProUGUI
+--- !u!1 &602235198 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 7285642981117715727, guid: 3b281b32d1fad4b40a1ca5f78bfa5e5f, type: 3}
+  m_PrefabInstance: {fileID: 602235195}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &602340820
 GameObject:
   m_ObjectHideFlags: 0
@@ -12131,6 +12139,9 @@ MonoBehaviour:
   seedResourceName: Seed
   sproutPrefab: {fileID: 0}
   sproutPrefabId: Sprout
+  craftDialogPanel: {fileID: 602235198}
+  craftDialogTitleText: {fileID: 602235197}
+  craftDialogQuantityText: {fileID: 602235196}
 --- !u!1 &1425762595
 GameObject:
   m_ObjectHideFlags: 0

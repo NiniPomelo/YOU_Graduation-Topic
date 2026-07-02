@@ -7,22 +7,22 @@ public class InventoryResourceBinder : MonoBehaviour
     [System.Serializable]
     public class ResourceSlotBinding
     {
-        [Header("資源名稱，要跟 AddResource 時用的字一樣")]
+        [Header("Resource name used by ResourceManager")]
         public string resourceName;
 
-        [Header("這格的 UI")]
+        [Header("UI references")]
         public GameObject slotRoot;
         public TMP_Text countText;
         public Image iconImage;
 
-        [Header("當數量為 0 時要不要隱藏")]
+        [Header("Hide this slot when owned and craftable amounts are both zero")]
         public bool hideWhenZero = false;
     }
 
-    [Header("所有要綁定的資源格子")]
+    [Header("Bound resource slots")]
     public ResourceSlotBinding[] bindings;
 
-    [Header("是否每幀刷新")]
+    [Header("Refresh every frame")]
     public bool refreshEveryFrame = false;
 
     private void Start()
@@ -50,13 +50,20 @@ public class InventoryResourceBinder : MonoBehaviour
             ResourceSlotBinding binding = bindings[i];
             if (binding == null || string.IsNullOrEmpty(binding.resourceName)) continue;
 
-            int amount = ResourceManager.Instance.GetResource(binding.resourceName);
+            int ownedAmount = ResourceManager.Instance.GetResource(binding.resourceName);
+            int craftableAmount = ResourceManager.Instance.GetCraftableCount(binding.resourceName);
+            ResourceManager.CraftRecipe recipe = ResourceManager.Instance.GetRecipe(binding.resourceName);
 
             if (binding.countText != null)
-                binding.countText.text = amount.ToString();
+            {
+                binding.countText.richText = true;
+                binding.countText.text = recipe != null && craftableAmount > 0
+                    ? ownedAmount + "\n<color=#FFD84A>+" + craftableAmount + "</color>"
+                    : ownedAmount.ToString();
+            }
 
             if (binding.slotRoot != null && binding.hideWhenZero)
-                binding.slotRoot.SetActive(amount > 0);
+                binding.slotRoot.SetActive(ownedAmount + craftableAmount > 0);
         }
     }
 }

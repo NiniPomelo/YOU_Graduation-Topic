@@ -1,9 +1,10 @@
+﻿using System;
 using UnityEngine;
 using TMPro;
 
 public class InventoryPanelController : MonoBehaviour
 {
-    [Header("左手")]
+    [Header("Left Hand")]
     public Transform leftHand;
 
     [Header("Panel")]
@@ -13,28 +14,33 @@ public class InventoryPanelController : MonoBehaviour
     [Header("Title")]
     public TextMeshProUGUI titleText;
 
-    [Header("環境 Sections")]
+    [Header("Sections")]
     public GameObject[] sections;
 
-    [Header("環境名稱")]
+    [Header("Section Names")]
     public string[] sectionNames;
 
-    [Header("每個環境的 Slot 容器（HorizontalSlots）")]
+    [Header("Slot Parents")]
     public Transform[] slotParents;
 
-    [Header("玩家移動腳本（Panel開啟時停用）")]
+    [Header("Locomotion Scripts")]
     public MonoBehaviour[] locomotionScripts;
 
     private InventorySlotUI[][] slots;
 
     private int currentSection = 0;
     private int currentSlot = 0;
+    private int lastNotifiedSection = -1;
+    private int lastNotifiedSlot = -1;
+    private bool inputLocked;
 
-    [Header("輸入設定")]
+    [Header("Input Cooldown")]
     public float inputCooldown = 0.25f;
     private float lastInputTime = 0f;
 
     private InventoryResourceBinder resourceBinder;
+
+    public event Action<InventorySlotUI> CurrentSlotChanged;
 
     void Start()
     {
@@ -60,6 +66,7 @@ public class InventoryPanelController : MonoBehaviour
         RefreshCraftableSlotVisibility();
 
         if (panel == null || !panel.activeSelf) return;
+        if (inputLocked) return;
 
         HandleSectionSwitch();
         HandleSlotSelection();
@@ -95,6 +102,7 @@ public class InventoryPanelController : MonoBehaviour
             if (newState)
             {
                 currentSlot = 0;
+                inputLocked = false;
                 UpdateSection();
                 SetLocomotionEnabled(false);
 
@@ -103,6 +111,7 @@ public class InventoryPanelController : MonoBehaviour
             }
             else
             {
+                inputLocked = false;
                 SetLocomotionEnabled(true);
             }
         }
@@ -181,9 +190,7 @@ public class InventoryPanelController : MonoBehaviour
         }
 
         if (titleText != null && currentSection < sectionNames.Length)
-        {
             titleText.text = sectionNames[currentSection];
-        }
 
         UpdateSlotSelection();
     }
@@ -216,10 +223,12 @@ public class InventoryPanelController : MonoBehaviour
 
             for (int i = 0; i < slots[s].Length; i++)
             {
-                bool selected = (s == currentSection && i == currentSlot);
+                bool selected = s == currentSection && i == currentSlot;
                 slots[s][i].SetSelected(selected);
             }
         }
+
+        NotifyCurrentSlotChangedIfNeeded();
     }
 
     void RefreshCraftableSlotVisibility()
@@ -244,7 +253,9 @@ public class InventoryPanelController : MonoBehaviour
                     continue;
                 }
 
-                slot.gameObject.SetActive(ResourceManager.Instance.GetAvailableCraftCount(slot.resourceName) > 0);
+                int ownedAmount = ResourceManager.Instance.GetResource(slot.resourceName);
+                int craftableAmount = ResourceManager.Instance.GetCraftableCount(slot.resourceName);
+                slot.gameObject.SetActive(ownedAmount + craftableAmount > 0);
             }
         }
     }
@@ -277,12 +288,23 @@ public class InventoryPanelController : MonoBehaviour
         return slots[sectionIndex][slotIndex].gameObject.activeInHierarchy;
     }
 
+    void NotifyCurrentSlotChangedIfNeeded()
+    {
+        if (lastNotifiedSection == currentSection && lastNotifiedSlot == currentSlot)
+            return;
+
+        lastNotifiedSection = currentSection;
+        lastNotifiedSlot = currentSlot;
+        CurrentSlotChanged?.Invoke(GetCurrentSlot());
+    }
+
     public InventorySlotUI GetCurrentSlot()
     {
         if (slots == null) return null;
         if (currentSection < 0 || currentSection >= slots.Length) return null;
         if (slots[currentSection] == null || slots[currentSection].Length == 0) return null;
         if (currentSlot < 0 || currentSlot >= slots[currentSection].Length) return null;
+        if (!IsSlotVisible(currentSection, currentSlot)) return null;
 
         return slots[currentSection][currentSlot];
     }
@@ -302,6 +324,11 @@ public class InventoryPanelController : MonoBehaviour
         return currentSlot;
     }
 
+    public void SetInputLocked(bool locked)
+    {
+        inputLocked = locked;
+    }
+
     void SetLocomotionEnabled(bool enabledState)
     {
         if (locomotionScripts == null) return;
@@ -310,7 +337,7 @@ public class InventoryPanelController : MonoBehaviour
         {
             if (locomotionScripts[i] != null)
             {
-                Debug.Log("切換腳本: " + locomotionScripts[i].GetType().Name + " -> " + enabledState);
+                Debug.Log("Locomotion: " + locomotionScripts[i].GetType().Name + " -> " + enabledState);
                 locomotionScripts[i].enabled = enabledState;
             }
         }

@@ -1,31 +1,31 @@
-using UnityEngine;
+﻿using UnityEngine;
 
 [RequireComponent(typeof(LineRenderer))]
 public class VRRayGrabOre : MonoBehaviour
 {
-    [Header("��")]
+    [Header("嚙踝蕭")]
     public Transform rightHandTransform;
 
-    [Header("�g�u�]�w")]
+    [Header("嚙篇嚙線嚙稽嚙緩")]
     public float rayLength = 5f;
     public LayerMask interactableLayer;
 
-    [Header("���")]
+    [Header("Grab State")]
     private GameObject grabbedObject = null;
     private Rigidbody grabbedRb = null;
 
-    [Header("���q�P�w")]
+    [Header("嚙踝蕭嚙緬嚙瞑嚙緩")]
     public float mineDistance = 0.8f;
     public string pickObjectName = "Pick";
-    public int pickDamagePerHit = 10;
+    public int pickDamagePerHit = 1;
 
-    [Header("�q�� Prefab")]
+    [Header("嚙緬嚙踝蕭 Prefab")]
     public GameObject sandPrefab;
     public GameObject ironOrePrefab;
     public GameObject limestonePrefab;
     public GameObject marblePrefab;
 
-    [Header("�ͦ��]�w")]
+    [Header("嚙談佗蕭嚙稽嚙緩")]
     public float dropRadius = 0.5f;
     public int minDrop = 1;
     public int maxDrop = 3;
@@ -48,7 +48,7 @@ public class VRRayGrabOre : MonoBehaviour
 
         Ray ray = new Ray(rightHandTransform.position, rightHandTransform.forward);
 
-        // �g�u���
+        // 嚙篇嚙線嚙踝蕭嚙?
         line.SetPosition(0, rightHandTransform.position);
         line.SetPosition(1, rightHandTransform.position + rightHandTransform.forward * rayLength);
 
@@ -66,7 +66,7 @@ public class VRRayGrabOre : MonoBehaviour
             {
                 if (OVRInput.GetDown(OVRInput.Button.PrimaryIndexTrigger, OVRInput.Controller.RTouch))
                 {
-                    // �p�G��W�ثe�w�g���� Pick�A�N���n��@�ɪ���
+                    // 嚙緘嚙瘦嚙踝蕭W嚙諍前嚙緩嚙篇嚙踝蕭嚙踝蕭 Pick嚙璀嚙瞇嚙踝蕭嚙緯嚙踝蕭@嚙褕迎蕭嚙踝蕭
                     if (IsHoldingPick()) return;
 
                     GrabObject(hit.collider.gameObject);
@@ -85,7 +85,7 @@ public class VRRayGrabOre : MonoBehaviour
 
     void HandleMining()
     {
-        // �u���k��ثe���� Pick �~���
+        // 嚙線嚙踝蕭嚙糊嚙踝蕭堳e嚙踝蕭嚙踝蕭 Pick 嚙羯嚙踝蕭嚙?
         if (!IsHoldingPick()) return;
 
         RaycastHit hit;
@@ -114,7 +114,7 @@ public class VRRayGrabOre : MonoBehaviour
         {
             Transform child = rightHandTransform.GetChild(i);
 
-            // �B�z Instantiate ��i��X�{�� (Clone)
+            // 嚙畿嚙緲 Instantiate 嚙踝蕭i嚙踝蕭X嚙緹嚙踝蕭 (Clone)
             string cleanName = child.name.Replace("(Clone)", "").Trim();
 
             if (cleanName == pickObjectName)
@@ -150,18 +150,18 @@ public class VRRayGrabOre : MonoBehaviour
     void CollectResource(GameObject obj)
     {
         string typeName = obj.name.Replace("(Clone)", "").Trim();
-        Debug.Log("�B����귽: [" + typeName + "]");
+        Debug.Log("嚙畿嚙踝蕭嚙踝蕭篞? [" + typeName + "]");
 
         if (ResourceManager.Instance != null)
         {
             ResourceManager.Instance.AddResource(typeName, 1);
-            Debug.Log("�w�[�J ResourceManager: " + typeName);
+            Debug.Log("嚙緩嚙稼嚙皚 ResourceManager: " + typeName);
         }
 
         Destroy(obj);
     }
 
-    // ----------- �p�G�A�����٭n�b�o��̭��H�����q�A�i�H�O�d -----------
+    // ----------- 嚙緘嚙瘦嚙璀嚙踝蕭嚙踝蕭嚙誶要嚙箭嚙緻嚙踝蕭怑嚙踝蕭H嚙踝蕭嚙踝蕭嚙緬嚙璀嚙箠嚙瘡嚙瞌嚙範 -----------
 
     void MineRock(GameObject rock)
     {
