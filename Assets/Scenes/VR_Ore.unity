@@ -5856,10 +5856,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 298e42367a45738478574cd248b2316a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EndingConditionManager
-  goodEndingMax: 149
-  warningEndingMax: 299
-  disasterThreshold: 450
-  minimumDisasterElapsedYears: 3
+  goodEndingMax: 499
+  warningEndingMax: 999
+  disasterThreshold: 1500
+  minimumDisasterElapsedYears: 10
   endingSceneName: MR_Main
 --- !u!1 &979970109
 GameObject:

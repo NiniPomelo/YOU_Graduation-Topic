@@ -39,6 +39,9 @@ public class InventorySpawner : MonoBehaviour
     public TMP_Text craftDialogTitleText;
     public TMP_Text craftDialogQuantityText;
 
+    [Header("Craft Dialog Floating")]
+    public Vector3 craftDialogFloatingOffset = new Vector3(0f, 0f, -0.08f);
+
     private GameObject currentSpawnedObject;
     private bool currentSpawnedIsTool = false;
     private CraftQuantityDialog craftDialog;
@@ -81,7 +84,10 @@ public class InventorySpawner : MonoBehaviour
         SubscribeResourceEventsIfNeeded();
 
         if (panelController.IsPanelOpen())
-            TryShowCraftDialogForSelectedSlot(panelController.GetCurrentSlot());
+        {
+            if (!TryShowCraftDialogForSelectedSlot(panelController.GetCurrentSlot()))
+                TryShowCraftDialogForAnyCraftableSlot();
+        }
         else
         {
             lastAutoPromptedSlot = null;
@@ -109,7 +115,8 @@ public class InventorySpawner : MonoBehaviour
 
     void HandleCurrentSlotChanged(InventorySlotUI slot)
     {
-        TryShowCraftDialogForSelectedSlot(slot, true);
+        if (!TryShowCraftDialogForSelectedSlot(slot, true))
+            TryShowCraftDialogForAnyCraftableSlot(true);
     }
 
     void HandleResourcesChanged()
@@ -121,7 +128,10 @@ public class InventorySpawner : MonoBehaviour
         lastAutoPromptedCraftableCount = -1;
 
         if (panelController != null && panelController.IsPanelOpen())
-            TryShowCraftDialogForSelectedSlot(panelController.GetCurrentSlot(), true);
+        {
+            if (!TryShowCraftDialogForSelectedSlot(panelController.GetCurrentSlot(), true))
+                TryShowCraftDialogForAnyCraftableSlot(true);
+        }
     }
 
     void SubscribeResourceEventsIfNeeded()
@@ -144,21 +154,40 @@ public class InventorySpawner : MonoBehaviour
         subscribedResourceManager = null;
     }
 
-    void TryShowCraftDialogForSelectedSlot(InventorySlotUI slot, bool forceCheck = false)
+    bool TryShowCraftDialogForSelectedSlot(InventorySlotUI slot, bool forceCheck = false)
     {
-        if (slot == null || ResourceManager.Instance == null) return;
-        if (craftDialog != null && craftDialog.IsOpen) return;
+        if (slot == null || ResourceManager.Instance == null) return false;
+        if (craftDialog != null && craftDialog.IsOpen) return true;
 
         int craftableCount = GetCraftableDialogCount(slot);
         if (craftableCount <= 0)
-            return;
+            return false;
 
         if (!forceCheck && slot == lastAutoPromptedSlot && craftableCount == lastAutoPromptedCraftableCount)
-            return;
+            return false;
 
         lastAutoPromptedSlot = slot;
         lastAutoPromptedCraftableCount = craftableCount;
         ShowCraftDialog(slot);
+        return true;
+    }
+
+    bool TryShowCraftDialogForAnyCraftableSlot(bool forceCheck = false)
+    {
+        if (panelController == null || ResourceManager.Instance == null) return false;
+        if (craftDialog != null && craftDialog.IsOpen) return true;
+
+        InventorySlotUI[] slots = panelController.GetComponentsInChildren<InventorySlotUI>(true);
+        for (int i = 0; i < slots.Length; i++)
+        {
+            InventorySlotUI slot = slots[i];
+            if (slot == null || !slot.gameObject.activeInHierarchy) continue;
+
+            if (TryShowCraftDialogForSelectedSlot(slot, forceCheck))
+                return true;
+        }
+
+        return false;
     }
 
     bool ShouldOpenCraftDialog(InventorySlotUI slot)
@@ -330,6 +359,7 @@ public class InventorySpawner : MonoBehaviour
         GameObject dialogObject = new GameObject("CraftQuantityDialogController");
         dialogObject.transform.SetParent(panelController != null ? panelController.transform : transform, false);
         craftDialog = dialogObject.AddComponent<CraftQuantityDialog>();
+        craftDialog.SetFloatingOffset(craftDialogFloatingOffset);
         craftDialog.Initialize(panelController, craftDialogPanel, craftDialogTitleText, craftDialogQuantityText);
     }
 
@@ -483,8 +513,14 @@ class CraftQuantityDialog : MonoBehaviour
     private bool usingManualUI;
     private const float quantityInputCooldown = 0.2f;
     private const float buttonRayDistance = 5f;
+    private Vector3 floatingLocalOffset = new Vector3(0f, 0f, -0.08f);
 
     public bool IsOpen => root != null && root.activeSelf;
+
+    public void SetFloatingOffset(Vector3 offset)
+    {
+        floatingLocalOffset = offset;
+    }
 
     public void Initialize(InventoryPanelController controller, GameObject manualRoot = null, TMP_Text manualTitleText = null, TMP_Text manualQuantityText = null)
     {
@@ -617,6 +653,7 @@ class CraftQuantityDialog : MonoBehaviour
 
         Image rootImage = root.GetComponent<Image>();
         rootImage.color = new Color(0.7f, 0.05f, 0.05f, 0.92f);
+        EnsureFloatingShadow(root);
 
         titleText = CreateText("Title", root.transform, new Vector2(0f, 98f), new Vector2(460f, 52f), 34);
         quantityText = CreateText("Quantity", root.transform, new Vector2(0f, 38f), new Vector2(460f, 48f), 26);
@@ -648,9 +685,7 @@ class CraftQuantityDialog : MonoBehaviour
         rect.localRotation = Quaternion.identity;
         rect.localScale = Vector3.one;
 
-        Vector3 localPosition = rect.localPosition;
-        localPosition.z = 0f;
-        rect.localPosition = localPosition;
+        rect.localPosition = floatingLocalOffset;
 
         if (usingManualUI)
             return;
@@ -668,6 +703,20 @@ class CraftQuantityDialog : MonoBehaviour
             image.color = new Color(0.7f, 0.05f, 0.05f, 0.92f);
             image.raycastTarget = true;
         }
+
+        EnsureFloatingShadow(root);
+    }
+
+    private void EnsureFloatingShadow(GameObject target)
+    {
+        if (target == null) return;
+
+        Shadow shadow = target.GetComponent<Shadow>();
+        if (shadow == null)
+            shadow = target.AddComponent<Shadow>();
+
+        shadow.effectColor = new Color(0f, 0f, 0f, 0.45f);
+        shadow.effectDistance = new Vector2(10f, -10f);
     }
 
     private TMP_Text CreateText(string name, Transform parent, Vector2 position, Vector2 size, int fontSize)

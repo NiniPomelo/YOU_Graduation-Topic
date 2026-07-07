@@ -40,7 +40,7 @@ public class ResourceManager : MonoBehaviour
 
     [Header("Tool Durability")]
     public int axeMaxDurability = 50;
-    public int pickMaxDurability = 50;
+    public int pickMaxDurability = 150;
 
     private readonly Dictionary<string, int> resources = new Dictionary<string, int>();
     private readonly Dictionary<string, int> toolDurability = new Dictionary<string, int>();

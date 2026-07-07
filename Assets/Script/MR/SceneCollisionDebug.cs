@@ -25,7 +25,7 @@ public class SceneCollisionDebug : MonoBehaviour
     public bool useLineVisual = true;
     public LineRenderer line;
     public float lineLength = 1.5f;
-    public float endingLineLength = 5f;
+    public float endingLineLength = 15f;
 
     [Header("Spawn Cooldown")]
     public float inputCooldown = 0.2f;

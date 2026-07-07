@@ -23,7 +23,7 @@ public class MRMainEndingUI : MonoBehaviour
     public Transform rayStartPoint;
     public OVRInput.Controller rayController = OVRInput.Controller.RTouch;
     public OVRInput.Button clickButton = OVRInput.Button.PrimaryIndexTrigger;
-    public float buttonRayDistance = 5f;
+    public float buttonRayDistance = 15f;
 
     void Start()
     {

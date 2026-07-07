@@ -12,10 +12,10 @@ public class EndingConditionManager : MonoBehaviour
     public static EndingConditionManager Instance;
 
     [Header("Thresholds")]
-    public int goodEndingMax = 149;
-    public int warningEndingMax = 299;
-    public int disasterThreshold = 450;
-    public float minimumDisasterElapsedYears = 3f;
+    public int goodEndingMax = 499;
+    public int warningEndingMax = 999;
+    public int disasterThreshold = 1500;
+    public float minimumDisasterElapsedYears = 10f;
 
     [Header("Ending Scene")]
     public string endingSceneName = "MR_Main";
@@ -81,6 +81,13 @@ public class EndingConditionManager : MonoBehaviour
         string stage = GetEnvironmentalStage(totalNegative);
         string title = GetEndingTitle(triggerType, totalNegative);
         string description = GetEndingDescription(triggerType, totalNegative, stage);
+        AICausalEvaluator.Result aiResult = KarmaSystem.Instance != null
+            ? AICausalEvaluator.Evaluate(KarmaSystem.Instance, totalNegative, totalBeforeRestoration, restorationKarma, elapsedYears)
+            : null;
+
+        if (aiResult != null)
+            description += "\n\n" + aiResult.reportText;
+
         bool isDisaster = triggerType == EndingTriggerType.Disaster || totalNegative >= disasterThreshold;
 
         if (GameEndingState.Instance != null)

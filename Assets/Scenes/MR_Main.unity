@@ -959,7 +959,7 @@ MonoBehaviour:
   starterAxeName: Axe
   starterPickName: Pick
   axeMaxDurability: 50
-  pickMaxDurability: 50
+  pickMaxDurability: 150
 --- !u!1 &832575517
 GameObject:
   m_ObjectHideFlags: 0
