@@ -70,4 +70,6 @@ public class SpawnedObjectSaveData
     public float scaleX;
     public float scaleY;
     public float scaleZ;
+
+    public float growthElapsedTime;
 }

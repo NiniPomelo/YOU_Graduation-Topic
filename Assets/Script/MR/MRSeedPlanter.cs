@@ -114,9 +114,19 @@ public class MRSeedPlanter : MonoBehaviour
         if (KarmaSystem.Instance != null)
             KarmaSystem.Instance.AddRestorationKarma(6);
 
+        TreeGrowthController treeGrowthController = sprout.GetComponent<TreeGrowthController>();
         PlantGrowthTimer growthTimer = sprout.GetComponent<PlantGrowthTimer>();
-        if (growthTimer == null)
-            growthTimer = sprout.AddComponent<PlantGrowthTimer>();
+
+        if (treeGrowthController != null)
+        {
+            if (growthTimer != null)
+                growthTimer.enabled = false;
+        }
+        else
+        {
+            if (growthTimer == null)
+                growthTimer = sprout.AddComponent<PlantGrowthTimer>();
+        }
 
         if (SaveManager.Instance != null)
             SaveManager.Instance.SaveGame();

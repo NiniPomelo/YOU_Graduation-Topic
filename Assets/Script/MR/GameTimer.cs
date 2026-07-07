@@ -7,10 +7,10 @@ public class GameTimer : MonoBehaviour
     public static GameTimer Instance;
 
     [Header("Total Time Seconds")]
-    public float totalTime = 360f;
+    public float totalTime = 6000f;
 
     [Header("Time Scale")]
-    public float gameYearsPerRealMinute = 5f;
+    public float gameYearsPerRealMinute = 1f;
 
     [Header("UI Optional")]
     public TMP_Text timerText;
@@ -94,10 +94,11 @@ public class GameTimer : MonoBehaviour
     {
         if (timerText == null) return;
 
-        int minutes = Mathf.FloorToInt(currentTime / 60f);
-        int seconds = Mathf.FloorToInt(currentTime % 60f);
+        int elapsedMinutes = Mathf.FloorToInt(ElapsedRealSeconds / 60f);
+        int elapsedSeconds = Mathf.FloorToInt(ElapsedRealSeconds % 60f);
         int years = Mathf.FloorToInt(ElapsedGameYears);
-        timerText.text = $"{minutes:00}:{seconds:00} / Year {years:00}";
+        int maxYears = Mathf.RoundToInt(gameYearsPerRealMinute * totalTime / 60f);
+        timerText.text = $"Year {years:00} / {maxYears:00}  {elapsedMinutes:00}:{elapsedSeconds:00}";
     }
 
     void UpdateTimeKarma()

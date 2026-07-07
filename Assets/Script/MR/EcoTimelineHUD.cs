@@ -7,7 +7,7 @@ public class EcoTimelineHUD : MonoBehaviour
     public static EcoTimelineHUD Instance;
 
     [Header("Follow")]
-    public Vector3 viewportAnchor = new Vector3(0.5f, 0.88f, 1.8f);
+    public Vector3 viewportAnchor = new Vector3(0.5f, 0.70f, 1.8f);
     public float followSmooth = 12f;
     public float rotationSmooth = 16f;
 
@@ -173,13 +173,13 @@ public class EcoTimelineHUD : MonoBehaviour
         KarmaSystem karma = KarmaSystem.Instance;
 
         float totalTime = Mathf.Max(1f, timer.totalTime);
-        float remaining = Mathf.Clamp(timer.CurrentTime, 0f, totalTime);
+        float elapsed = Mathf.Clamp(timer.ElapsedRealSeconds, 0f, totalTime);
         float elapsedYears = Mathf.Clamp(timer.ElapsedGameYears, 0f, timer.gameYearsPerRealMinute * totalTime / 60f);
         float maxYears = timer.gameYearsPerRealMinute * totalTime / 60f;
         float progress = Mathf.Clamp01(timer.ElapsedRealSeconds / totalTime);
 
-        int minutes = Mathf.FloorToInt(remaining / 60f);
-        int seconds = Mathf.FloorToInt(remaining % 60f);
+        int minutes = Mathf.FloorToInt(elapsed / 60f);
+        int seconds = Mathf.FloorToInt(elapsed % 60f);
         int displayYear = Mathf.FloorToInt(elapsedYears);
         int displayMaxYear = Mathf.RoundToInt(maxYears);
         int totalKarma = karma != null ? karma.GetTotalNegative() : 0;

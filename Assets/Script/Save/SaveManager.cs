@@ -152,6 +152,11 @@ public class SaveManager : MonoBehaviour
             if (string.IsNullOrEmpty(obj.prefabId)) continue;
 
             Transform t = obj.transform;
+            float growthElapsedTime = 0f;
+            TreeGrowthController tree = obj.GetComponent<TreeGrowthController>();
+
+            if (tree != null)
+                growthElapsedTime = tree.GetElapsedTime();
 
             data.spawnedObjects.Add(new SpawnedObjectSaveData
             {
@@ -168,7 +173,9 @@ public class SaveManager : MonoBehaviour
 
                 scaleX = t.localScale.x,
                 scaleY = t.localScale.y,
-                scaleZ = t.localScale.z
+                scaleZ = t.localScale.z,
+
+                growthElapsedTime = growthElapsedTime
             });
         }
     }
@@ -358,6 +365,10 @@ public class SaveManager : MonoBehaviour
                 record = obj.AddComponent<SpawnedObjectRecord>();
 
             record.prefabId = objectData.prefabId;
+
+            TreeGrowthController tree = obj.GetComponent<TreeGrowthController>();
+            if (tree != null)
+                tree.SetElapsedTime(objectData.growthElapsedTime);
         }
     }
 
