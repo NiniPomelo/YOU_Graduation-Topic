@@ -12,9 +12,10 @@ public class EndingConditionManager : MonoBehaviour
     public static EndingConditionManager Instance;
 
     [Header("Thresholds")]
-    public int goodEndingMax = 79;
-    public int warningEndingMax = 159;
-    public int disasterThreshold = 200;
+    public int goodEndingMax = 149;
+    public int warningEndingMax = 299;
+    public int disasterThreshold = 450;
+    public float minimumDisasterElapsedYears = 3f;
 
     [Header("Ending Scene")]
     public string endingSceneName = "MR_Main";
@@ -37,8 +38,9 @@ public class EndingConditionManager : MonoBehaviour
         if (KarmaSystem.Instance == null) return;
 
         int totalNegative = KarmaSystem.Instance.GetTotalNegative();
+        float elapsedYears = GameTimer.Instance != null ? GameTimer.Instance.ElapsedGameYears : 0f;
 
-        if (totalNegative >= disasterThreshold)
+        if (elapsedYears >= minimumDisasterElapsedYears && totalNegative >= disasterThreshold)
             TriggerEnding(EndingTriggerType.Disaster);
     }
 
@@ -132,16 +134,16 @@ public class EndingConditionManager : MonoBehaviour
 
     string GetEnvironmentalStage(int totalNegative)
     {
-        if (totalNegative <= 50)
-            return "\u81ea\u7136\u5e73\u8861";
+        if (totalNegative <= goodEndingMax)
+            return "Stable";
 
-        if (totalNegative <= 100)
-            return "\u8f15\u5ea6\u958b\u767c";
+        if (totalNegative <= warningEndingMax)
+            return "Stressed";
 
-        if (totalNegative <= 150)
-            return "\u751f\u614b\u60e1\u5316";
+        if (totalNegative < disasterThreshold)
+            return "Critical";
 
-        return "\u751f\u614b\u5d29\u58de";
+        return "Collapse";
     }
 
     public void ResetEndingState()

@@ -44,6 +44,7 @@ public class InventorySpawner : MonoBehaviour
     private CraftQuantityDialog craftDialog;
     private InventorySlotUI lastAutoPromptedSlot;
     private int lastAutoPromptedCraftableCount = -1;
+    private ResourceManager subscribedResourceManager;
 
     void Start()
     {
@@ -58,6 +59,7 @@ public class InventorySpawner : MonoBehaviour
         }
 
         EnsureCraftDialog();
+        SubscribeResourceEventsIfNeeded();
 
         if (panelController != null)
             panelController.CurrentSlotChanged += HandleCurrentSlotChanged;
@@ -67,6 +69,8 @@ public class InventorySpawner : MonoBehaviour
     {
         if (panelController != null)
             panelController.CurrentSlotChanged -= HandleCurrentSlotChanged;
+
+        UnsubscribeResourceEvents();
     }
 
     void Update()
@@ -74,6 +78,7 @@ public class InventorySpawner : MonoBehaviour
         if (panelController == null) return;
 
         EnsureCraftDialog();
+        SubscribeResourceEventsIfNeeded();
 
         if (panelController.IsPanelOpen())
             TryShowCraftDialogForSelectedSlot(panelController.GetCurrentSlot());
@@ -105,6 +110,38 @@ public class InventorySpawner : MonoBehaviour
     void HandleCurrentSlotChanged(InventorySlotUI slot)
     {
         TryShowCraftDialogForSelectedSlot(slot, true);
+    }
+
+    void HandleResourcesChanged()
+    {
+        if (panelController != null)
+            panelController.RefreshResourceUI();
+
+        lastAutoPromptedSlot = null;
+        lastAutoPromptedCraftableCount = -1;
+
+        if (panelController != null && panelController.IsPanelOpen())
+            TryShowCraftDialogForSelectedSlot(panelController.GetCurrentSlot(), true);
+    }
+
+    void SubscribeResourceEventsIfNeeded()
+    {
+        ResourceManager manager = ResourceManager.Instance;
+        if (subscribedResourceManager == manager) return;
+
+        UnsubscribeResourceEvents();
+
+        subscribedResourceManager = manager;
+        if (subscribedResourceManager != null)
+            subscribedResourceManager.ResourcesChanged += HandleResourcesChanged;
+    }
+
+    void UnsubscribeResourceEvents()
+    {
+        if (subscribedResourceManager != null)
+            subscribedResourceManager.ResourcesChanged -= HandleResourcesChanged;
+
+        subscribedResourceManager = null;
     }
 
     void TryShowCraftDialogForSelectedSlot(InventorySlotUI slot, bool forceCheck = false)

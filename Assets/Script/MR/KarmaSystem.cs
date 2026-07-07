@@ -21,6 +21,9 @@ public class KarmaSystem : MonoBehaviour
     public int houseCount;
     public int factoryCount;
 
+    [Header("Time Karma Balance")]
+    public float timeKarmaScale = 0.25f;
+
     public int TotalBeforeRestoration => forestNegative + oceanNegative + mineNegative + constructionKarma + timeKarma;
     public int RestorationKarma => restorationKarma;
 
@@ -110,12 +113,12 @@ public class KarmaSystem : MonoBehaviour
     {
         elapsedGameYears = Mathf.Max(0f, elapsedGameYears);
 
-        int updatedTimeKarma = Mathf.FloorToInt(
+        int updatedTimeKarma = Mathf.FloorToInt(timeKarmaScale * (
             factoryCount * 2f * elapsedGameYears +
             oilExtractedCount * 1f * elapsedGameYears +
             gasExtractedCount * 1f * elapsedGameYears +
             choppedTreeCount * 0.5f * elapsedGameYears
-        );
+        ));
 
         if (updatedTimeKarma == timeKarma)
             return;

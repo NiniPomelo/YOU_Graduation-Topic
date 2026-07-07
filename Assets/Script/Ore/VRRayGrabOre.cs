@@ -31,6 +31,7 @@ public class VRRayGrabOre : MonoBehaviour
     public int maxDrop = 3;
 
     private LineRenderer line;
+    private RockMining currentMiningTarget;
 
     void Start()
     {
@@ -86,7 +87,11 @@ public class VRRayGrabOre : MonoBehaviour
     void HandleMining()
     {
         // 嚙線嚙踝蕭嚙糊嚙踝蕭堳e嚙踝蕭嚙踝蕭 Pick 嚙羯嚙踝蕭嚙?
-        if (!IsHoldingPick()) return;
+        if (!IsHoldingPick())
+        {
+            currentMiningTarget = null;
+            return;
+        }
 
         RaycastHit hit;
         if (Physics.Raycast(rightHandTransform.position, rightHandTransform.forward, out hit, mineDistance))
@@ -94,16 +99,21 @@ public class VRRayGrabOre : MonoBehaviour
             if (hit.collider.CompareTag("Rock"))
             {
                 RockMining rock = hit.collider.GetComponent<RockMining>();
-                if (rock != null)
+                if (rock != null && rock != currentMiningTarget)
                 {
                     bool pickStillUsable = ResourceManager.Instance == null || ResourceManager.Instance.UseTool(pickObjectName, pickDamagePerHit);
                     rock.HitRock(hit.point);
+                    currentMiningTarget = rock;
 
                     if (!pickStillUsable)
                         DestroyHeldTool(pickObjectName);
                 }
+
+                return;
             }
         }
+
+        currentMiningTarget = null;
     }
 
     bool IsHoldingPick()

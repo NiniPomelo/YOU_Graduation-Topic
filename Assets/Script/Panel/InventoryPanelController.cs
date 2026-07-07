@@ -347,6 +347,9 @@ public class InventoryPanelController : MonoBehaviour
     {
         RefreshCraftableSlotVisibility();
 
+        if (panel != null && panel.activeSelf)
+            UpdateSlotSelection();
+
         if (resourceBinder != null)
             resourceBinder.RefreshUI();
     }

@@ -89,9 +89,9 @@ public class EcoTimelineHUD : MonoBehaviour
         Image panelImage = panelObject.GetComponent<Image>();
         panelImage.color = panelColor;
 
-        stageText = CreateText("StageText", panelObject.transform, new Vector2(-238f, 12f), new Vector2(220f, 42f), 24, TextAlignmentOptions.Left);
-        yearText = CreateText("YearText", panelObject.transform, new Vector2(0f, 14f), new Vector2(250f, 42f), 28, TextAlignmentOptions.Center);
-        timeText = CreateText("TimeText", panelObject.transform, new Vector2(255f, 12f), new Vector2(160f, 42f), 24, TextAlignmentOptions.Right);
+        stageText = CreateText("StageText", panelObject.transform, new Vector2(-238f, 12f), new Vector2(240f, 42f), 22, TextAlignmentOptions.Left);
+        yearText = CreateText("YearText", panelObject.transform, new Vector2(0f, 14f), new Vector2(250f, 42f), 26, TextAlignmentOptions.Center);
+        timeText = CreateText("TimeText", panelObject.transform, new Vector2(255f, 12f), new Vector2(180f, 42f), 22, TextAlignmentOptions.Right);
 
         GameObject progressBack = new GameObject("ProgressBack", typeof(RectTransform), typeof(Image));
         progressBack.transform.SetParent(panelObject.transform, false);
@@ -184,9 +184,9 @@ public class EcoTimelineHUD : MonoBehaviour
         int displayMaxYear = Mathf.RoundToInt(maxYears);
         int totalKarma = karma != null ? karma.GetTotalNegative() : 0;
 
-        stageText.text = GetEnvironmentalStage(totalKarma);
+        stageText.text = "Stage: " + GetEnvironmentalStage(totalKarma);
         yearText.text = "Year " + displayYear.ToString("00") + " / " + displayMaxYear.ToString("00");
-        timeText.text = minutes.ToString("00") + ":" + seconds.ToString("00");
+        timeText.text = "Time " + minutes.ToString("00") + ":" + seconds.ToString("00");
 
         if (progressFillRect != null)
             progressFillRect.sizeDelta = new Vector2(650f * progress, 10f);
@@ -194,15 +194,15 @@ public class EcoTimelineHUD : MonoBehaviour
 
     private string GetEnvironmentalStage(int totalKarma)
     {
-        if (totalKarma <= 50)
-            return "\u81ea\u7136\u5e73\u8861";
+        if (totalKarma <= 149)
+            return "Stable";
 
-        if (totalKarma <= 100)
-            return "\u8f15\u5ea6\u958b\u767c";
+        if (totalKarma <= 299)
+            return "Stressed";
 
-        if (totalKarma <= 150)
-            return "\u751f\u614b\u60e1\u5316";
+        if (totalKarma < 450)
+            return "Critical";
 
-        return "\u751f\u614b\u5d29\u58de";
+        return "Collapse";
     }
 }

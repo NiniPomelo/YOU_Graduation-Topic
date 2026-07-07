@@ -16,9 +16,13 @@ public class CapsuleButtonDistanceWithCooldown : MonoBehaviour
     [Header("Detection")]
     public float detectRadius = 0.4f;
     public float triggerCooldown = 0.2f;
+    public float resetDistanceBuffer = 0.05f;
 
     private bool leftReady = true;
     private bool rightReady = true;
+    private bool leftInside = false;
+    private bool rightInside = false;
+    private float nextTriggerTime = 0f;
 
     void Update()
     {
@@ -30,14 +34,38 @@ public class CapsuleButtonDistanceWithCooldown : MonoBehaviour
     {
         if (hand == null) return;
 
+        bool isInside = isLeftHand ? leftInside : rightInside;
+        float dist = Vector3.Distance(hand.position, transform.position);
+        float resetDistance = detectRadius + resetDistanceBuffer;
+
+        if (isInside)
+        {
+            if (dist > resetDistance)
+            {
+                if (isLeftHand)
+                    leftInside = false;
+                else
+                    rightInside = false;
+            }
+
+            return;
+        }
+
         if (isLeftHand && !leftReady) return;
         if (!isLeftHand && !rightReady) return;
 
-        float dist = Vector3.Distance(hand.position, transform.position);
-
         if (dist <= detectRadius)
         {
-            Trigger();
+            if (isLeftHand)
+                leftInside = true;
+            else
+                rightInside = true;
+
+            if (Time.time >= nextTriggerTime)
+            {
+                Trigger();
+                nextTriggerTime = Time.time + triggerCooldown;
+            }
 
             if (isLeftHand)
             {

@@ -5,6 +5,10 @@ public class SceneCollisionDebug : MonoBehaviour
     [Header("Inventory Panel")]
     public InventoryPanelController inventoryPanel;
 
+    [Header("Ending Panel")]
+    public MRMainEndingUI endingUI;
+    public GameObject endingPanel;
+
     [Header("Spawn Button")]
     public OVRInput.Button spawnButton = OVRInput.Button.PrimaryIndexTrigger;
 
@@ -21,6 +25,7 @@ public class SceneCollisionDebug : MonoBehaviour
     public bool useLineVisual = true;
     public LineRenderer line;
     public float lineLength = 1.5f;
+    public float endingLineLength = 5f;
 
     [Header("Spawn Cooldown")]
     public float inputCooldown = 0.2f;
@@ -29,6 +34,7 @@ public class SceneCollisionDebug : MonoBehaviour
     void Start()
     {
         InitializeXRReferences();
+        InitializeEndingReferences();
         SetupLineRenderer();
 
         if (line != null)
@@ -46,6 +52,15 @@ public class SceneCollisionDebug : MonoBehaviour
             if (rig != null)
                 rayStartPoint = rig.rightHandAnchor;
         }
+    }
+
+    void InitializeEndingReferences()
+    {
+        if (endingUI == null)
+            endingUI = Object.FindFirstObjectByType<MRMainEndingUI>();
+
+        if (endingPanel == null && endingUI != null)
+            endingPanel = endingUI.endingPanel;
     }
 
     void SetupLineRenderer()
@@ -76,13 +91,15 @@ public class SceneCollisionDebug : MonoBehaviour
         if (!useLineVisual || line == null || rayStartPoint == null)
             return;
 
-        bool showLine = inventoryPanel != null && inventoryPanel.IsPanelOpen();
+        bool endingOpen = IsEndingPanelOpen();
+        bool showLine = IsInventoryPanelOpen() || endingOpen;
         line.enabled = showLine;
 
         if (!showLine) return;
 
         Vector3 startPos = rayStartPoint.position + rayStartPoint.forward * 0.03f;
-        Vector3 endPos = startPos + rayStartPoint.forward * lineLength;
+        float currentLineLength = endingOpen ? endingLineLength : lineLength;
+        Vector3 endPos = startPos + rayStartPoint.forward * currentLineLength;
 
         line.SetPosition(0, startPos);
         line.SetPosition(1, endPos);
@@ -90,6 +107,9 @@ public class SceneCollisionDebug : MonoBehaviour
 
     void HandleTriggerSpawn()
     {
+        if (IsEndingPanelOpen())
+            return;
+
         if (inventoryPanel == null)
         {
             Debug.LogWarning("inventoryPanel is not assigned.");
@@ -163,6 +183,19 @@ public class SceneCollisionDebug : MonoBehaviour
         lastInputTime = Time.time;
 
         Debug.Log("Spawned prefab: " + prefabToSpawn.name + " at " + spawnPos);
+    }
+
+    bool IsInventoryPanelOpen()
+    {
+        return inventoryPanel != null && inventoryPanel.IsPanelOpen();
+    }
+
+    bool IsEndingPanelOpen()
+    {
+        if (endingPanel == null)
+            InitializeEndingReferences();
+
+        return endingPanel != null && endingPanel.activeInHierarchy;
     }
 
     bool TryConsumeSelectedSlotForSpawn(InventorySlotUI slot)

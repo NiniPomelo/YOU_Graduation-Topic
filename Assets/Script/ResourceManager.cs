@@ -5,6 +5,7 @@ using UnityEngine;
 public class ResourceManager : MonoBehaviour
 {
     public static ResourceManager Instance;
+    public event Action ResourcesChanged;
 
     [Serializable]
     public class ResourceCost
@@ -80,6 +81,7 @@ public class ResourceManager : MonoBehaviour
             KarmaSystem.Instance.AddResourceKarma(resourceName, amount);
 
         AutoSaveIfAllowed();
+        NotifyResourcesChanged();
     }
 
     public bool ConsumeResource(string resourceName, int amount)
@@ -97,6 +99,7 @@ public class ResourceManager : MonoBehaviour
         resources[resourceName] = currentAmount - amount;
         Debug.Log("ConsumeResource -> " + resourceName + " = " + resources[resourceName]);
         AutoSaveIfAllowed();
+        NotifyResourcesChanged();
 
         return true;
     }
@@ -150,6 +153,7 @@ public class ResourceManager : MonoBehaviour
 
         Debug.Log("Crafted item -> " + itemName + " x " + quantity);
         AutoSaveIfAllowed();
+        NotifyResourcesChanged();
 
         return true;
     }
@@ -166,6 +170,7 @@ public class ResourceManager : MonoBehaviour
         if (toolDurability[toolName] > 0)
         {
             AutoSaveIfAllowed();
+            NotifyResourcesChanged();
             return true;
         }
 
@@ -178,6 +183,7 @@ public class ResourceManager : MonoBehaviour
 
         Debug.Log(toolName + " broke");
         AutoSaveIfAllowed();
+        NotifyResourcesChanged();
 
         return false;
     }
@@ -204,6 +210,7 @@ public class ResourceManager : MonoBehaviour
         toolDurability.Clear();
         GrantStarterTools();
         Debug.Log("All resources reset");
+        NotifyResourcesChanged();
     }
 
     public void ReplaceAllResources(Dictionary<string, int> newResources, bool saveAfterReplace = false)
@@ -231,6 +238,8 @@ public class ResourceManager : MonoBehaviour
 
         if (saveAfterReplace)
             AutoSaveIfAllowed();
+
+        NotifyResourcesChanged();
     }
 
     public Dictionary<string, int> GetAllResources()
@@ -282,6 +291,11 @@ public class ResourceManager : MonoBehaviour
 
         if (SaveManager.Instance != null)
             SaveManager.Instance.SaveGame();
+    }
+
+    private void NotifyResourcesChanged()
+    {
+        ResourcesChanged?.Invoke();
     }
 
     private void InitializeDefaultRecipes()

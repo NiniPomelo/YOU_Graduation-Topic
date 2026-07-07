@@ -3,7 +3,7 @@ using UnityEngine;
 public class OceanResourceSystem : MonoBehaviour
 {
     [Header("隨機資源數量")]
-    public int minResource = 1;
+    public int minResource = 2;
     public int maxResource = 5;
 
     public void GenerateResources()

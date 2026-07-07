@@ -98,7 +98,7 @@ public class GameTimer : MonoBehaviour
         int elapsedSeconds = Mathf.FloorToInt(ElapsedRealSeconds % 60f);
         int years = Mathf.FloorToInt(ElapsedGameYears);
         int maxYears = Mathf.RoundToInt(gameYearsPerRealMinute * totalTime / 60f);
-        timerText.text = $"Year {years:00} / {maxYears:00}  {elapsedMinutes:00}:{elapsedSeconds:00}";
+        timerText.text = $"Year {years:00} / {maxYears:00}  Time {elapsedMinutes:00}:{elapsedSeconds:00}";
     }
 
     void UpdateTimeKarma()
