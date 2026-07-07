@@ -111,6 +111,13 @@ public class MRSeedPlanter : MonoBehaviour
 
         record.prefabId = sproutPrefabId;
 
+        if (KarmaSystem.Instance != null)
+            KarmaSystem.Instance.AddRestorationKarma(6);
+
+        PlantGrowthTimer growthTimer = sprout.GetComponent<PlantGrowthTimer>();
+        if (growthTimer == null)
+            growthTimer = sprout.AddComponent<PlantGrowthTimer>();
+
         if (SaveManager.Instance != null)
             SaveManager.Instance.SaveGame();
 

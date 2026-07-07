@@ -30,6 +30,7 @@ public class SaveManager : MonoBehaviour
         data.currentSceneName = SceneManager.GetActiveScene().name;
 
         SaveResources(data);
+        SaveTimer(data);
         SaveKarma(data);
         SaveEnding(data);
         SaveSpawnedObjectsWithSceneCheck(data);
@@ -99,6 +100,15 @@ public class SaveManager : MonoBehaviour
         }
     }
 
+    private void SaveTimer(SaveData data)
+    {
+        if (GameTimer.Instance == null) return;
+
+        data.hasTimerData = true;
+        data.remainingTime = GameTimer.Instance.CurrentTime;
+        data.timerIsRunning = GameTimer.Instance.IsRunning;
+    }
+
     private void SaveKarma(SaveData data)
     {
         if (KarmaSystem.Instance == null) return;
@@ -106,6 +116,14 @@ public class SaveManager : MonoBehaviour
         data.forestNegative = KarmaSystem.Instance.forestNegative;
         data.oceanNegative = KarmaSystem.Instance.oceanNegative;
         data.mineNegative = KarmaSystem.Instance.mineNegative;
+        data.constructionKarma = KarmaSystem.Instance.constructionKarma;
+        data.timeKarma = KarmaSystem.Instance.timeKarma;
+        data.restorationKarma = KarmaSystem.Instance.restorationKarma;
+        data.choppedTreeCount = KarmaSystem.Instance.choppedTreeCount;
+        data.oilExtractedCount = KarmaSystem.Instance.oilExtractedCount;
+        data.gasExtractedCount = KarmaSystem.Instance.gasExtractedCount;
+        data.houseCount = KarmaSystem.Instance.houseCount;
+        data.factoryCount = KarmaSystem.Instance.factoryCount;
     }
 
     private void SaveEnding(SaveData data)
@@ -113,9 +131,14 @@ public class SaveManager : MonoBehaviour
         if (GameEndingState.Instance == null) return;
 
         data.hasPendingEnding = GameEndingState.Instance.hasPendingEnding;
+        data.endingType = GameEndingState.Instance.endingType;
         data.endingTitle = GameEndingState.Instance.endingTitle;
         data.endingDescription = GameEndingState.Instance.endingDescription;
+        data.environmentalStage = GameEndingState.Instance.environmentalStage;
         data.totalNegative = GameEndingState.Instance.totalNegative;
+        data.totalBeforeRestoration = GameEndingState.Instance.totalBeforeRestoration;
+        data.endingRestorationKarma = GameEndingState.Instance.restorationKarma;
+        data.elapsedGameYears = GameEndingState.Instance.elapsedGameYears;
         data.isDisasterEnding = GameEndingState.Instance.isDisasterEnding;
     }
 
@@ -167,6 +190,9 @@ public class SaveManager : MonoBehaviour
         string json = File.ReadAllText(SavePath);
         SaveData data = JsonUtility.FromJson<SaveData>(json);
 
+        if (data != null && data.hasPendingEnding)
+            data.currentSceneName = "MR_Main";
+
         StartCoroutine(LoadSceneAndApplyData(data));
     }
 
@@ -176,6 +202,7 @@ public class SaveManager : MonoBehaviour
         yield return null;
 
         LoadResources(data);
+        LoadTimer(data);
         LoadKarma(data);
         LoadEnding(data);
         LoadSpawnedObjects(data);
@@ -212,6 +239,13 @@ public class SaveManager : MonoBehaviour
         }
     }
 
+    private void LoadTimer(SaveData data)
+    {
+        if (GameTimer.Instance == null || !data.hasTimerData) return;
+
+        GameTimer.Instance.SetCurrentTime(data.remainingTime, data.timerIsRunning);
+    }
+
     private void LoadKarma(SaveData data)
     {
         if (KarmaSystem.Instance == null) return;
@@ -219,6 +253,17 @@ public class SaveManager : MonoBehaviour
         KarmaSystem.Instance.forestNegative = data.forestNegative;
         KarmaSystem.Instance.oceanNegative = data.oceanNegative;
         KarmaSystem.Instance.mineNegative = data.mineNegative;
+        KarmaSystem.Instance.constructionKarma = data.constructionKarma;
+        KarmaSystem.Instance.timeKarma = data.timeKarma;
+        KarmaSystem.Instance.restorationKarma = data.restorationKarma;
+        KarmaSystem.Instance.choppedTreeCount = data.choppedTreeCount;
+        KarmaSystem.Instance.oilExtractedCount = data.oilExtractedCount;
+        KarmaSystem.Instance.gasExtractedCount = data.gasExtractedCount;
+        KarmaSystem.Instance.houseCount = data.houseCount;
+        KarmaSystem.Instance.factoryCount = data.factoryCount;
+
+        if (GameTimer.Instance != null)
+            KarmaSystem.Instance.UpdateTimeKarma(GameTimer.Instance.ElapsedGameYears);
     }
 
     private void LoadEnding(SaveData data)
@@ -228,9 +273,14 @@ public class SaveManager : MonoBehaviour
         if (data.hasPendingEnding)
         {
             GameEndingState.Instance.SetEndingData(
+                data.endingType,
                 data.endingTitle,
                 data.endingDescription,
+                data.environmentalStage,
                 data.totalNegative,
+                data.totalBeforeRestoration,
+                data.endingRestorationKarma,
+                data.elapsedGameYears,
                 data.isDisasterEnding
             );
         }

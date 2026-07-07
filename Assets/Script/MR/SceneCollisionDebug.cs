@@ -1,28 +1,28 @@
-﻿using UnityEngine;
+using UnityEngine;
 
 public class SceneCollisionDebug : MonoBehaviour
 {
-    [Header("共用 Panel")]
+    [Header("Inventory Panel")]
     public InventoryPanelController inventoryPanel;
 
-    [Header("生成按鍵")]
+    [Header("Spawn Button")]
     public OVRInput.Button spawnButton = OVRInput.Button.PrimaryIndexTrigger;
 
-    [Header("射線起點")]
-    public Transform rayStartPoint;   // 拖 RightHandAnchor
+    [Header("Ray Start")]
+    public Transform rayStartPoint;
     public float spawnDistance = 1.5f;
 
-    [Header("貼地設定")]
+    [Header("Ground Placement")]
     public bool stickToGround = true;
-    public float groundY = 0f;         // 地面高度，通常先用 0
-    public float yOffset = 0.02f;      // 避免物件陷進地面
+    public float groundY = 0f;
+    public float yOffset = 0.02f;
 
-    [Header("可視化射線")]
+    [Header("Line Visual")]
     public bool useLineVisual = true;
     public LineRenderer line;
     public float lineLength = 1.5f;
 
-    [Header("生成冷卻")]
+    [Header("Spawn Cooldown")]
     public float inputCooldown = 0.2f;
     private float lastInputTime;
 
@@ -92,13 +92,13 @@ public class SceneCollisionDebug : MonoBehaviour
     {
         if (inventoryPanel == null)
         {
-            Debug.LogWarning("inventoryPanel 沒有指定");
+            Debug.LogWarning("inventoryPanel is not assigned.");
             return;
         }
 
         if (rayStartPoint == null)
         {
-            Debug.LogWarning("rayStartPoint 沒有指定，請拖 RightHandAnchor");
+            Debug.LogWarning("rayStartPoint is not assigned. Please assign RightHandAnchor.");
             return;
         }
 
@@ -123,7 +123,7 @@ public class SceneCollisionDebug : MonoBehaviour
 
         if (slot == null)
         {
-            Debug.LogWarning("目前沒有選到任何 Slot");
+            Debug.LogWarning("No selected slot.");
             return;
         }
 
@@ -131,7 +131,7 @@ public class SceneCollisionDebug : MonoBehaviour
 
         if (prefabToSpawn == null)
         {
-            Debug.LogWarning("目前選到的 Slot 沒有設定 spawnPrefab");
+            Debug.LogWarning("Selected slot has no spawnPrefab.");
             return;
         }
 
@@ -150,20 +150,19 @@ public class SceneCollisionDebug : MonoBehaviour
 
         SpawnedObjectRecord record = spawnedObj.GetComponent<SpawnedObjectRecord>();
         if (record == null)
-        {
             record = spawnedObj.AddComponent<SpawnedObjectRecord>();
-        }
 
         record.prefabId = prefabToSpawn.name;
 
+        if (KarmaSystem.Instance != null)
+            KarmaSystem.Instance.AddConstructionKarma(slot.resourceName);
+
         if (SaveManager.Instance != null)
-        {
             SaveManager.Instance.SaveGame();
-        }
 
         lastInputTime = Time.time;
 
-        Debug.Log("固定位置生成 Prefab: " + prefabToSpawn.name + " at " + spawnPos);
+        Debug.Log("Spawned prefab: " + prefabToSpawn.name + " at " + spawnPos);
     }
 
     bool TryConsumeSelectedSlotForSpawn(InventorySlotUI slot)
@@ -191,14 +190,13 @@ public class SceneCollisionDebug : MonoBehaviour
 
         return true;
     }
+
     Vector3 GetFixedSpawnPosition()
     {
         Vector3 pos = rayStartPoint.position + rayStartPoint.forward * spawnDistance;
 
         if (stickToGround)
-        {
             pos.y = groundY + yOffset;
-        }
 
         return pos;
     }

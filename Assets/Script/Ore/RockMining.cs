@@ -13,10 +13,10 @@ public class RockMining : MonoBehaviour
 
     private int hp = 3;
 
-    // ·s¼W¡G°O¿ı³Ì«á¤@¦¸ºVÀ»¦ì¸m
+    // ?å•£?åš—î«³??ï„“?æ•ºï—¹?ç”ˆâŠ¥î¬?ï’¿?èµ?
     private Vector3 lastHitPoint;
 
-    // ¶Ç¤J¸I¼²ÂI
+    // ?å–³ï…¯è£å”³?æšº?
     public void HitRock(Vector3 hitPoint)
     {
         lastHitPoint = hitPoint;
@@ -25,8 +25,6 @@ public class RockMining : MonoBehaviour
 
         if (hp <= 0)
         {
-            if (KarmaSystem.Instance != null)
-                KarmaSystem.Instance.AddMineNegative(1);
 
             MineRock();
 
@@ -36,7 +34,7 @@ public class RockMining : MonoBehaviour
 
     void MineRock()
     {
-        // §ï¦¨±qºVÀ»ÂI¥Í¦¨
+        // ?å¯?æ•ºîµ¥î¬?ï“„??î¸‚?
         Vector3 spawnPos = lastHitPoint;
 
         for (int i = 0; i < Random.Range(minDrop, maxDrop + 1); i++)

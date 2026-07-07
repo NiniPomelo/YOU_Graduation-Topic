@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -75,6 +75,10 @@ public class ResourceManager : MonoBehaviour
         EnsureToolDurability(resourceName);
 
         Debug.Log("AddResource -> " + resourceName + " = " + resources[resourceName]);
+
+        if (KarmaSystem.Instance != null && amount > 0)
+            KarmaSystem.Instance.AddResourceKarma(resourceName, amount);
+
         AutoSaveIfAllowed();
     }
 

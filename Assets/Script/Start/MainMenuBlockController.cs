@@ -3,7 +3,7 @@ using UnityEngine.SceneManagement;
 
 public class MainMenuBlockController : MonoBehaviour
 {
-    [Header("重新開始要進入的場景")]
+    [Header("Main Scene")]
     public string mainSceneName = "MR_Main";
 
     private bool isLoading = false;
@@ -15,12 +15,16 @@ public class MainMenuBlockController : MonoBehaviour
 
         if (SaveManager.Instance != null && SaveManager.Instance.HasSaveFile())
         {
-            Debug.Log("Start：找到存檔，讀取上次進度");
+            Debug.Log("Start: save found, loading previous progress.");
             SaveManager.Instance.LoadGame();
         }
         else
         {
-            Debug.Log("Start：沒有存檔，直接開始新遊戲");
+            Debug.Log("Start: no save found, starting a new game.");
+
+            if (GameTimer.Instance != null)
+                GameTimer.Instance.ResetTimer();
+
             SceneManager.LoadScene(mainSceneName);
         }
     }
@@ -30,27 +34,22 @@ public class MainMenuBlockController : MonoBehaviour
         if (isLoading) return;
         isLoading = true;
 
-        Debug.Log("Restart：刪除存檔並重新開始");
+        Debug.Log("Restart: delete save and start over.");
 
         if (SaveManager.Instance != null)
-        {
             SaveManager.Instance.DeleteSave();
-        }
 
         if (ResourceManager.Instance != null)
-        {
             ResourceManager.Instance.ResetAllResources();
-        }
 
         if (KarmaSystem.Instance != null)
-        {
             KarmaSystem.Instance.ResetKarma();
-        }
 
         if (GameEndingState.Instance != null)
-        {
             GameEndingState.Instance.ClearEndingData();
-        }
+
+        if (GameTimer.Instance != null)
+            GameTimer.Instance.ResetTimer();
 
         SceneManager.LoadScene(mainSceneName);
     }

@@ -3,17 +3,17 @@ using System.Collections;
 
 public class CapsuleButtonDistanceWithCooldown : MonoBehaviour
 {
-    [Header("資源系統")]
+    [Header("Resource System")]
     public OceanResourceSystem resourceSystem;
 
-    [Header("平台震動")]
+    [Header("Platform Shake")]
     public OilPlatformShake platformShake;
 
-    [Header("手部")]
+    [Header("Hands")]
     public Transform leftHand;
     public Transform rightHand;
 
-    [Header("偵測")]
+    [Header("Detection")]
     public float detectRadius = 0.4f;
     public float triggerCooldown = 0.2f;
 
@@ -66,19 +66,15 @@ public class CapsuleButtonDistanceWithCooldown : MonoBehaviour
     {
         Debug.Log("Ocean Capsule Trigger!");
 
-        // 加在這裡（觸發資源 = 負面行為）
-        if (KarmaSystem.Instance != null)
-            KarmaSystem.Instance.AddOceanNegative(1);
-
         if (resourceSystem != null)
             resourceSystem.GenerateResources();
         else
-            Debug.LogWarning("resourceSystem 沒有指定！");
+            Debug.LogWarning("resourceSystem is not assigned.");
 
         if (platformShake != null)
             platformShake.StartShake();
         else
-            Debug.LogWarning("platformShake 沒有指定！");
+            Debug.LogWarning("platformShake is not assigned.");
     }
 
     void OnDrawGizmosSelected()

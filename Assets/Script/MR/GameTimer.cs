@@ -1,15 +1,20 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using TMPro;
 
 public class GameTimer : MonoBehaviour
 {
     public static GameTimer Instance;
 
-    [Header("總時間（秒）")]
-    public float totalTime = 300f;
+    [Header("Total Time Seconds")]
+    public float totalTime = 360f;
 
-    [Header("UI（可不填）")]
+    [Header("Time Scale")]
+    public float gameYearsPerRealMinute = 5f;
+
+    [Header("UI Optional")]
     public TMP_Text timerText;
+    public string timerTextObjectName = "TimerText";
 
     private float currentTime;
     private bool isRunning = true;
@@ -17,6 +22,8 @@ public class GameTimer : MonoBehaviour
 
     public float CurrentTime => currentTime;
     public bool IsRunning => isRunning;
+    public float ElapsedRealSeconds => Mathf.Clamp(totalTime - currentTime, 0f, totalTime);
+    public float ElapsedGameYears => ElapsedRealSeconds / 60f * gameYearsPerRealMinute;
 
     private void Awake()
     {
@@ -31,15 +38,35 @@ public class GameTimer : MonoBehaviour
         }
     }
 
+    private void OnEnable()
+    {
+        SceneManager.sceneLoaded += HandleSceneLoaded;
+    }
+
+    private void OnDisable()
+    {
+        SceneManager.sceneLoaded -= HandleSceneLoaded;
+    }
+
     void Start()
     {
-        currentTime = totalTime;
+        if (currentTime <= 0f)
+            currentTime = totalTime;
+
+        FindTimerTextIfNeeded();
         UpdateTimerUI();
+        UpdateTimeKarma();
     }
 
     void Update()
     {
-        if (!isRunning) return;
+        FindTimerTextIfNeeded();
+
+        if (!isRunning)
+        {
+            UpdateTimerUI();
+            return;
+        }
 
         currentTime -= Time.deltaTime;
 
@@ -48,6 +75,7 @@ public class GameTimer : MonoBehaviour
             currentTime = 0f;
             isRunning = false;
             UpdateTimerUI();
+            UpdateTimeKarma();
 
             if (!timeUpTriggered && EndingConditionManager.Instance != null)
             {
@@ -59,6 +87,7 @@ public class GameTimer : MonoBehaviour
         }
 
         UpdateTimerUI();
+        UpdateTimeKarma();
     }
 
     void UpdateTimerUI()
@@ -67,7 +96,38 @@ public class GameTimer : MonoBehaviour
 
         int minutes = Mathf.FloorToInt(currentTime / 60f);
         int seconds = Mathf.FloorToInt(currentTime % 60f);
-        timerText.text = $"{minutes:00}:{seconds:00}";
+        int years = Mathf.FloorToInt(ElapsedGameYears);
+        timerText.text = $"{minutes:00}:{seconds:00} / Year {years:00}";
+    }
+
+    void UpdateTimeKarma()
+    {
+        if (KarmaSystem.Instance != null)
+            KarmaSystem.Instance.UpdateTimeKarma(ElapsedGameYears);
+    }
+
+    void HandleSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        FindTimerTextIfNeeded(true);
+        UpdateTimerUI();
+    }
+
+    void FindTimerTextIfNeeded(bool force = false)
+    {
+        if (!force && timerText != null) return;
+
+        TMP_Text[] texts = FindObjectsByType<TMP_Text>(FindObjectsSortMode.None);
+        for (int i = 0; i < texts.Length; i++)
+        {
+            if (texts[i] == null) continue;
+
+            if (texts[i].gameObject.name == timerTextObjectName ||
+                texts[i].gameObject.name.ToLower().Contains("timer"))
+            {
+                timerText = texts[i];
+                return;
+            }
+        }
     }
 
     public void StopTimer()
@@ -81,5 +141,15 @@ public class GameTimer : MonoBehaviour
         isRunning = true;
         timeUpTriggered = false;
         UpdateTimerUI();
+        UpdateTimeKarma();
+    }
+
+    public void SetCurrentTime(float remainingTime, bool running)
+    {
+        currentTime = Mathf.Clamp(remainingTime, 0f, totalTime);
+        isRunning = running && currentTime > 0f;
+        timeUpTriggered = currentTime <= 0f;
+        UpdateTimerUI();
+        UpdateTimeKarma();
     }
 }

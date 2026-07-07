@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using UnityEngine.SceneManagement;
 using TMPro;
 using UnityEngine.UI;
@@ -182,6 +182,9 @@ public class InventorySpawner : MonoBehaviour
 
         currentSpawnedIsTool = IsToolSlot(currentSlot);
 
+        if (!currentSlotIsSeed && !currentSpawnedIsTool && KarmaSystem.Instance != null)
+            KarmaSystem.Instance.AddConstructionKarma(currentSlot.resourceName);
+
         if (currentSlotIsSeed)
         {
             MRSeedPlanter planter = currentSpawnedObject.GetComponent<MRSeedPlanter>();
@@ -235,6 +238,9 @@ public class InventorySpawner : MonoBehaviour
 
         if (!ResourceManager.Instance.ConsumeResource(resourceName, 1))
             return false;
+
+        if (KarmaSystem.Instance != null)
+            KarmaSystem.Instance.AddRestorationKarma(2);
 
         if (panelController != null)
             panelController.RefreshResourceUI();

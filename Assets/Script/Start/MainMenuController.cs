@@ -3,26 +3,43 @@ using UnityEngine.SceneManagement;
 
 public class MainMenuController : MonoBehaviour
 {
-    [Header("進入的主場景名稱")]
+    [Header("Main Scene")]
     public string mainSceneName = "MR_Main";
 
     public void OnClickStart()
     {
-        // 還沒做存檔前：
-        // Start = 保留目前 ResourceManager 內已有的資料，直接進場
-        Debug.Log("Start：沿用目前進度");
+        if (SaveManager.Instance != null && SaveManager.Instance.HasSaveFile())
+        {
+            Debug.Log("Start: save found, loading previous progress.");
+            SaveManager.Instance.LoadGame();
+            return;
+        }
+
+        if (GameTimer.Instance != null)
+            GameTimer.Instance.ResetTimer();
+
+        Debug.Log("Start: no save found, starting a new game.");
         SceneManager.LoadScene(mainSceneName);
     }
 
     public void OnClickRestart()
     {
-        // Restart = 清空所有資源，再重新開始
-        if (ResourceManager.Instance != null)
-        {
-            ResourceManager.Instance.ResetAllResources();
-        }
+        if (SaveManager.Instance != null)
+            SaveManager.Instance.DeleteSave();
 
-        Debug.Log("Restart：重新開始");
+        if (ResourceManager.Instance != null)
+            ResourceManager.Instance.ResetAllResources();
+
+        if (KarmaSystem.Instance != null)
+            KarmaSystem.Instance.ResetKarma();
+
+        if (GameEndingState.Instance != null)
+            GameEndingState.Instance.ClearEndingData();
+
+        if (GameTimer.Instance != null)
+            GameTimer.Instance.ResetTimer();
+
+        Debug.Log("Restart: start over.");
         SceneManager.LoadScene(mainSceneName);
     }
 }

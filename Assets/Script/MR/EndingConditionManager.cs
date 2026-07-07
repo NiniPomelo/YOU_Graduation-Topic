@@ -1,14 +1,22 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
+public enum EndingTriggerType
+{
+    TimeUp,
+    Disaster
+}
+
 public class EndingConditionManager : MonoBehaviour
 {
     public static EndingConditionManager Instance;
 
-    [Header("引爆值")]
-    public int disasterThreshold = 100;
+    [Header("Thresholds")]
+    public int goodEndingMax = 79;
+    public int warningEndingMax = 159;
+    public int disasterThreshold = 200;
 
-    [Header("結局場景名稱")]
+    [Header("Ending Scene")]
     public string endingSceneName = "MR_Main";
 
     private bool gameEnded = false;
@@ -31,75 +39,109 @@ public class EndingConditionManager : MonoBehaviour
         int totalNegative = KarmaSystem.Instance.GetTotalNegative();
 
         if (totalNegative >= disasterThreshold)
-        {
-            TriggerDisasterEnding();
-        }
+            TriggerEnding(EndingTriggerType.Disaster);
     }
 
     public void TriggerDisasterEnding()
     {
-        if (gameEnded) return;
-        gameEnded = true;
-
-        int totalNegative = 0;
-        if (KarmaSystem.Instance != null)
-            totalNegative = KarmaSystem.Instance.GetTotalNegative();
-
-        if (GameTimer.Instance != null)
-            GameTimer.Instance.StopTimer();
-
-        if (GameEndingState.Instance != null)
-        {
-            GameEndingState.Instance.SetEndingData(
-                "災難降臨",
-                "你在各個環境中的破壞行為累積到失衡臨界點，最終引發了無法挽回的後果。",
-                totalNegative,
-                true
-            );
-        }
-
-        SceneManager.LoadScene(endingSceneName);
+        TriggerEnding(EndingTriggerType.Disaster);
     }
 
     public void TriggerTimeUpEnding()
+    {
+        TriggerEnding(EndingTriggerType.TimeUp);
+    }
+
+    public void TriggerEnding(EndingTriggerType triggerType)
     {
         if (gameEnded) return;
         gameEnded = true;
 
         int totalNegative = 0;
+        int totalBeforeRestoration = 0;
+        int restorationKarma = 0;
+        float elapsedYears = 0f;
+
+        if (GameTimer.Instance != null)
+        {
+            elapsedYears = GameTimer.Instance.ElapsedGameYears;
+            GameTimer.Instance.StopTimer();
+        }
+
         if (KarmaSystem.Instance != null)
+        {
+            KarmaSystem.Instance.UpdateTimeKarma(elapsedYears);
             totalNegative = KarmaSystem.Instance.GetTotalNegative();
+            totalBeforeRestoration = KarmaSystem.Instance.TotalBeforeRestoration;
+            restorationKarma = KarmaSystem.Instance.RestorationKarma;
+        }
 
-        string title;
-        string description;
-
-        if (totalNegative < 30)
-        {
-            title = "表面平靜";
-            description = "時間到了。雖然世界尚未立即崩壞，但你留下的影響仍會慢慢擴散。";
-        }
-        else if (totalNegative < 60)
-        {
-            title = "生態受損";
-            description = "時間到了。你的行為已讓環境出現明顯損傷，失衡正在悄悄累積。";
-        }
-        else
-        {
-            title = "崩壞前夕";
-            description = "時間到了。雖然災難尚未全面爆發，但世界已站在失控邊緣。";
-        }
+        string stage = GetEnvironmentalStage(totalNegative);
+        string title = GetEndingTitle(triggerType, totalNegative);
+        string description = GetEndingDescription(triggerType, totalNegative, stage);
+        bool isDisaster = triggerType == EndingTriggerType.Disaster || totalNegative >= disasterThreshold;
 
         if (GameEndingState.Instance != null)
         {
             GameEndingState.Instance.SetEndingData(
+                triggerType.ToString(),
                 title,
                 description,
+                stage,
                 totalNegative,
-                false
+                totalBeforeRestoration,
+                restorationKarma,
+                elapsedYears,
+                isDisaster
             );
         }
 
+        if (SaveManager.Instance != null)
+            SaveManager.Instance.SaveGame();
+
         SceneManager.LoadScene(endingSceneName);
+    }
+
+    string GetEndingTitle(EndingTriggerType triggerType, int totalNegative)
+    {
+        if (triggerType == EndingTriggerType.Disaster)
+            return "\u751f\u614b\u5d29\u58de";
+
+        if (totalNegative <= goodEndingMax)
+            return "\u6c38\u7e8c\u5171\u751f";
+
+        if (totalNegative <= warningEndingMax)
+            return "\u751f\u614b\u5931\u8861";
+
+        return "\u751f\u614b\u5d29\u58de";
+    }
+
+    string GetEndingDescription(EndingTriggerType triggerType, int totalNegative, string stage)
+    {
+        if (triggerType == EndingTriggerType.Disaster)
+            return "\u56e0\u679c\u503c\u5df2\u7d93\u8d85\u904e\u74b0\u5883\u627f\u8f09\u4e0a\u9650\uff0c\u904a\u6232\u63d0\u524d\u56de\u5230MR\u7d50\u7b97\u3002\u76ee\u524d\u74b0\u5883\u968e\u6bb5\uff1a" + stage + "\u3002";
+
+        if (totalNegative <= goodEndingMax)
+            return "\u6642\u9593\u7d50\u7b97\u6642\uff0c\u4f60\u7684\u7834\u58de\u8207\u5fa9\u80b2\u884c\u70ba\u7dad\u6301\u5728\u53ef\u627f\u53d7\u7bc4\u570d\u5167\u3002\u76ee\u524d\u74b0\u5883\u968e\u6bb5\uff1a" + stage + "\u3002";
+
+        if (totalNegative <= warningEndingMax)
+            return "\u6642\u9593\u7d50\u7b97\u6642\uff0c\u74b0\u5883\u5df2\u7d93\u51fa\u73fe\u660e\u986f\u5931\u8861\uff0c\u4f46\u9084\u6c92\u6709\u8d70\u5230\u4e0d\u53ef\u633d\u56de\u3002\u76ee\u524d\u74b0\u5883\u968e\u6bb5\uff1a" + stage + "\u3002";
+
+        return "\u6642\u9593\u7d50\u7b97\u6642\uff0c\u751f\u614b\u5df2\u7d93\u9032\u5165\u9ad8\u98a8\u96aa\u72c0\u614b\u3002\u76ee\u524d\u74b0\u5883\u968e\u6bb5\uff1a" + stage + "\u3002";
+    }
+
+    string GetEnvironmentalStage(int totalNegative)
+    {
+        if (totalNegative <= 50)
+            return "\u81ea\u7136\u5e73\u8861";
+
+        if (totalNegative <= 100)
+            return "\u8f15\u5ea6\u958b\u767c";
+
+        if (totalNegative <= 150)
+            return "\u751f\u614b\u60e1\u5316";
+
+        return "\u751f\u614b\u5d29\u58de";
     }
 
     public void ResetEndingState()

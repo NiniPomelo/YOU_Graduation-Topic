@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System;
 
 [RequireComponent(typeof(LineRenderer))]
@@ -235,7 +235,7 @@ public class VRRayGrab_Forest : MonoBehaviour
         Vector3 treePos = tree.transform.position;
         //  ??ㄐ
         if (KarmaSystem.Instance != null)
-            KarmaSystem.Instance.AddForestNegative(1);
+            KarmaSystem.Instance.AddChoppedTree();
 
         // 璅孵?
         tree.transform.Rotate(Vector3.right, 90f);
